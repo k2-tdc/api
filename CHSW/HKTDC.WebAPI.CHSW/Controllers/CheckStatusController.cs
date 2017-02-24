@@ -26,7 +26,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         }
 
         // Get Three Level Services
-        [Route("applications/computer-app/service-types")]
+        [Route("workflow/applications/computer-app/service-types")]
         [HttpGet]
         public List<ServiceLevel1> GetServiceType()
         {
@@ -43,7 +43,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("applications/computer-app/service-providers")]
+        [Route("workflow/applications/computer-app/service-providers")]
         [HttpGet]
         public List<VWEmployeeDTO> GetForwardEmployee(string applicant)
         {
@@ -58,14 +58,14 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("applications/computer-app/approval-history")]
+        [Route("workflow/applications/computer-app/approval-history")]
         [HttpGet]
         public List<ChkFrmStatus> getHistoryList(string userid, string employeeid, string applicant = null, [FromUri(Name = "approval-start-date")] string approvalStartDate = null, [FromUri(Name = "approval-end-date")] string approvalEndDate = null, string status = null, string refid = null, [FromUri(Name = "create-start-date")] string createStartDate = null, [FromUri(Name = "create-end-date")] string createEndDate = null, string keyword = null)
         {
             return this.historyService.getApprovalList(userid, employeeid, applicant, approvalStartDate, approvalEndDate, status, refid, createStartDate, createEndDate, keyword);
         }
 
-        [Route("applications/computer-app/usage-report")]
+        [Route("workflow/applications/computer-app/usage-report")]
         [HttpGet]
         public HttpResponseMessage exportExcel(string refid = null, string department = null, string applicant = null, [FromUri(Name = "create-date-start")] string createdatestart = null, [FromUri(Name = "create-date-end")] string createdateend = null, [FromUri(Name = "completion-date-start")] string completiondatestart = null, [FromUri(Name = "completion-date-end")] string completiondateend = null, string keyword = null, string sort = null)
         {
@@ -92,7 +92,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         }
 
         //Get Details for Check Status Based on the Search Options
-        [Route("users/{UserId}/applications/computer-app")]
+        [Route("workflow/users/{UserId}/applications/computer-app")]
         [HttpGet]
         public List<ChkFrmStatus> GetRequestList(string UserId, string EmployeeId, int offset = 0, int limit = 999999, string sort = null, string refid = null, string status = null, [FromUri(Name = "start-date")] string FDate = null, [FromUri(Name = "end-date")] string TDate = null, string applicant = null)
         {
@@ -115,7 +115,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                 }
                 else
                 {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -126,7 +126,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         }
 
         //Get Details for Review
-        [Route("applications/computer-app/{ReferID}")]
+        [Route("workflow/applications/computer-app/{ReferID}")]
         [HttpGet]
         public List<Review> GetRequestDetails(string ReferID, string UserId, string ProInstID)
         {
@@ -138,7 +138,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                 }
                 else
                 {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)

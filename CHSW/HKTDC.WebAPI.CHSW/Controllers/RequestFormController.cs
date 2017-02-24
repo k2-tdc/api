@@ -27,7 +27,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         }
 
         //Save the New Request details to the given Tables
-        [Route("applications/computer-app")]
+        [Route("workflow/applications/computer-app")]
         [HttpPost]
         public HttpResponseMessage SubmitRequests([FromBody] dynamic request)
         {
@@ -63,11 +63,33 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                 //return Request.CreateResponse(HttpStatusCode.OK, result);
                 return new HttpResponseMessage { Content = new StringContent("{\"FormID\":\"" + result + "\"}", System.Text.Encoding.UTF8, "application/json") };
         }
-        
+
+        [Route("workflow/users/{UserId}/workers/computer-app")]
+        [HttpGet]
+        public List<Applicant> GetApprover(string UserId, string rule, string cost)
+        {
+            try
+            {
+                //if (compareUser(Request, UserId) || compareUser(Request, WorkId))
+                //{
+                    return this.requestService.GetAllEmployeeDetails(rule, null, UserId, cost);
+                //}
+                //else
+                //{
+                //    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                //}
+            }
+            catch (Exception ex)
+            {
+                var err = this.requestService.ErrorLog(ex, UserId);
+                throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
+            }
+        }
+
         #region old code
-        
+
         ////Get the Menu Items Based on the Login User & Process 
-        ////[Route("users/{UserId}/applications/computer-app/authorized-pages/{ProcessId?}")]
+        ////[Route("workflow/users/{UserId}/applications/computer-app/authorized-pages/{ProcessId?}")]
         //[HttpGet]
         //public Menus GetMenuItems(string UserId, string ProcessId)
         //{
@@ -88,9 +110,9 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         //    }
 
         //}
-        
+
         //// Get Selected Applicant Details Dept,Title 
-        ////[Route("users/{UserId}")]
+        ////[Route("workflow/users/{UserId}")]
         //[HttpGet]
         //public ApplicantDetails GetApplicant(string UserId, string Applicant)
         //{
@@ -150,31 +172,9 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         //        throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
         //    }
         //}
- 
-        ////[Route("users/{UserId}/workers")]
-        //[HttpGet]
-        //public List<Applicant> GetApprover(string RuleID, string WorkId, string UserId, string EstCost, string Applicant)
-        //{
-        //    try
-        //    {
-        //        if (compareUser(Request, UserId) || compareUser(Request, WorkId))
-        //        {
-        //            return this.requestService.GetAllEmployeeDetails(RuleID, WorkId, Applicant, EstCost);
-        //        }
-        //        else
-        //        {
-        //            throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        var err = this.requestService.ErrorLog(ex, UserId);
-        //        throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
-        //    }
-        //}
-        
+
         ////Get Status for Check Status Dropdown
-        ////[Route("applications/computer-app/status")]
+        ////[Route("workflow/applications/computer-app/status")]
         //[HttpGet]
         //public List<Reference> GetStatus(string task)
         ////public HttpResponseMessage GetStatus(string task)
@@ -192,9 +192,9 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         //        throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
         //    }
         //}
-        
+
         //// Get ProcessList Details
-        ////[Route("users/{UserId}/applications")]
+        ////[Route("workflow/users/{UserId}/applications")]
         //[HttpGet]
         //public List<ProcessMenu> GetProcessList(String UserId)
         //{
@@ -220,7 +220,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         //}
 
         //// Get Process Step List Details
-        ////[Route("applications/{ProId:int}/steps")]
+        ////[Route("workflow/applications/{ProId:int}/steps")]
         //[HttpGet]
         //public List<ProcessStepList> GetProcessStepList(int ProId)
         //{
@@ -271,7 +271,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         //}
 
         //// Get Delegation Details By Details From SP          
-        ////[Route("users/{UserId}/delegation-list/{DeleId}")]
+        ////[Route("workflow/users/{UserId}/delegation-list/{DeleId}")]
         //[HttpGet]
         //public List<DelegationDetails> GetDelegationDetails(string UserId, string DeleId, string ProId, string StepId, string Type)
         //{
@@ -293,7 +293,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         //}
 
         //// Get Delegation Details By Details From SP          
-        ////[Route("users/{UserId}/delegation-list/{DeleId}")]
+        ////[Route("workflow/users/{UserId}/delegation-list/{DeleId}")]
         //[HttpPost]
         //public string DeleteDelegation(string UserId, string DeleId)
         //{
@@ -309,7 +309,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         //}
 
         //// Get Delegation List Details
-        ////[Route("users/{UserId}/delegation-list")]
+        ////[Route("workflow/users/{UserId}/delegation-list")]
         //[HttpGet]
         //public List<DelegationList> GetDelegationList(string Type, string UserId)
         //{
@@ -334,9 +334,9 @@ namespace HKTDC.WebAPI.CHSW.Controllers
 
         //}
 
-        
 
-        ////[Route("users/{UserId}/work-list/computer-app/{ActionName}")]
+
+        ////[Route("workflow/users/{UserId}/work-list/computer-app/{ActionName}")]
         //[HttpPost]
         //public string WorklistAction([FromBody] dynamic request)
         //{
@@ -376,7 +376,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         //    }
 
         //}
-        
+
         ////Error Log
         //public HttpResponseMessage LogEror(string err, string UserId)
         //{
@@ -385,7 +385,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         //    return Request.CreateResponse(HttpStatusCode.OK, "success");
         //}
 
-        ////[Route("workers/{WorkId}/owners")]
+        ////[Route("workflow/workers/{WorkId}/owners")]
         //[HttpGet]
         //public List<Applicant> GetApplicantList(string RuleID, string WorkId, string UserId, string Type, string EmployeeId)
         //{
@@ -406,7 +406,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         //        throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
         //    }
         //}
-        
+
         //[HttpGet]
         //public List<Applicant> GetFromUser(string RuleID, string WorkId)
         //{

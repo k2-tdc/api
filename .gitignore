@@ -21,3 +21,6 @@ Common/HKTDC.WebAPI.Common/Properties/
 Common/HKTDC.Service.EmailChecker/Properties/
 CHSW/HKTDC.WebAPI.CHSW/Properties/
 Common/HKTDC.Service.EmailNotification/Properties/
+Common/HKTDC.WebAPI.Common/ClassDiagram1.cd
+CHSW/HKTDC.WebAPI.CHSW/ClassDiagram1.cd
+.vs/

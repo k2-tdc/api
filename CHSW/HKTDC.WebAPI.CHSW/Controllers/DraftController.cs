@@ -19,7 +19,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         }
 
         //Get Details for Draft List Based on the Search Options
-        [Route("users/{UserId}/draft-list/computer-app")]
+        [Route("workflow/users/{UserId}/draft-list/computer-app")]
         [HttpGet]
         public List<ChkFrmStatus> GetDraftList(string UserId, string EmployeeId, string refid = null, [FromUri(Name = "start-date")] string FDate = null, [FromUri(Name = "end-date")] string TDate = null, string applicant = null, int offset = 0, int limit = 999999, string sort = null)
         {
@@ -42,7 +42,8 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                 }
                 else
                 {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    //throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -53,7 +54,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         }
 
         //Get Details Draft Edit
-        [Route("users/{UserId}/draft-list/computer-app/{ReferID}")]
+        [Route("workflow/users/{UserId}/draft-list/computer-app/{ReferID}")]
         [HttpGet]
         public List<Review> GetDraftDetails(string ReferID, string UserId)
         {
@@ -65,7 +66,8 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                 }
                 else
                 {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    //throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -77,7 +79,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         }
 
         //To Delete the Draft 
-        [Route("users/{UserId}/draft-list/computer-app")]
+        [Route("workflow/users/{UserId}/draft-list/computer-app")]
         [HttpDelete]
         public HttpResponseMessage DeleteDraft(string UserId, string ReferID)
         {
@@ -97,7 +99,8 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                 }
                 else
                 {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    //throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)

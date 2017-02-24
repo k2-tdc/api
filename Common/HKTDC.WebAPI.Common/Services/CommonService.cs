@@ -232,7 +232,7 @@ namespace HKTDC.WebAPI.Common.Services
             {
                 List<Applicant> employees = new List<Applicant>();
                 SqlParameter[] sqlp = {
-                     new SqlParameter ("RuleCode",RuleID ),
+                     new SqlParameter ("RuleCode",RuleID.Replace(",", ";") ),
                      new SqlParameter("UserID",DBNull.Value),
                     new SqlParameter("WorkerID", DBNull.Value),
                     new SqlParameter("EstCost", DBNull.Value)};
@@ -328,7 +328,7 @@ namespace HKTDC.WebAPI.Common.Services
         /// <param name="allfilenames">FileNames</param>
         /// SP : K2_EditAttachment
         /// <returns>Return True : Got Success else : Failed form SP</returns>
-        public string UploadFiles(HttpRequest httpRequest, string userid, string refid = null, string process = null)
+        public string UploadFiles(HttpRequest httpRequest, string userid, string refid = null, string process = null, string AttachmentType = null)
         {
             //string rid = httpRequest.Form.Get("refid").ToString();
             //string process = httpRequest.Form.Get("process").ToString();
@@ -434,14 +434,22 @@ namespace HKTDC.WebAPI.Common.Services
                         if (!Directory.Exists(Dircur))
                             System.IO.Directory.CreateDirectory(Dircur);
 
+                        if (!string.IsNullOrEmpty(AttachmentType))
+                        {
+                            Dircur = Dircur + '/' + AttachmentType;
+                            if (!Directory.Exists(Dircur))
+                                System.IO.Directory.CreateDirectory(Dircur);
+                        }
+
                         Guid AttachmentGUID = Guid.NewGuid();
 
                         var userInfo = Db.vUser.Where(p => p.UserID == userid).FirstOrDefault();
 
                         ProcessRequestFormAttachment newAttachment = new ProcessRequestFormAttachment();
+                        FileInfo fileInfo = new FileInfo(postedFile.FileName);
                         newAttachment.ProcessID = processID;
                         newAttachment.UNCPath = UNCPath;
-                        newAttachment.FileName = new FileInfo(postedFile.FileName).Name;
+                        newAttachment.FileName = fileInfo.Name;
                         newAttachment.FormID = formID;
                         newAttachment.AttachmentGUID = AttachmentGUID;
                         newAttachment.UploadedDate = DateTime.Now;
@@ -449,13 +457,22 @@ namespace HKTDC.WebAPI.Common.Services
                         newAttachment.UploadedByEmployeeID = userInfo.EmployeeID;
                         newAttachment.UploadedByFullName = userInfo.FullName;
                         newAttachment.UploadedByDeptName = userInfo.DEPT;
-                        newAttachment.FileType = new FileInfo(postedFile.FileName).Extension;
-                        //newAttachment.FileSize = new FileInfo(postedFile.FileName).Length;
+                        newAttachment.FileType = fileInfo.Extension;
+                        newAttachment.AttachmentType = AttachmentType;
+                        //newAttachment.FileSize = Convert.ToDecimal(fileInfo.Length);
                         Db.ProcessRequestFormAttachment.Add(newAttachment);
                         Db.SaveChanges();
 
-                        var filePath = Dircur + "/" + AttachmentGUID.ToString() + new FileInfo(postedFile.FileName).Extension;
+                        var filePath = Dircur + "/" + AttachmentGUID.ToString() + fileInfo.Extension;
                         postedFile.SaveAs(filePath);
+
+                        var attachmentRecord = Db.ProcessRequestFormAttachment.Where(p => p.AttachmentGUID == AttachmentGUID && p.FormID == formID).FirstOrDefault();
+                        if(attachmentRecord != null)
+                        {
+                            FileInfo newInfo = new FileInfo(@filePath);
+                            attachmentRecord.FileSize = newInfo.Length;
+                            Db.SaveChanges();
+                        }
                     }
                     result = "SUCCESS";
                 }
@@ -509,7 +526,7 @@ namespace HKTDC.WebAPI.Common.Services
                 var fileRecord = Db.ProcessRequestFormAttachment.Where(p => p.AttachmentGUID == new Guid(GUID) && p.ProcessID == processID).FirstOrDefault();
                 if (fileRecord != null)
                 {
-                    string Dircur = fileRecord.UNCPath + "/" + fileRecord.FormID.ToString(); //UNC Path From Web Config
+                    string Dircur = fileRecord.UNCPath + "/" + fileRecord.FormID.ToString() + (!string.IsNullOrEmpty(fileRecord.AttachmentType) ? ("/" + fileRecord.AttachmentType) : ""); //UNC Path From Web Config
                     foreach (string s in System.IO.Directory.GetFiles(Dircur, fileRecord.AttachmentGUID + ".*"))
                     {
                         System.IO.File.Delete(s);
@@ -791,6 +808,17 @@ namespace HKTDC.WebAPI.Common.Services
             }
 
             return Tuple.Create(haveResult, returnStr);
+        }
+
+        public List<Dept> getDeptList()
+        {
+            List<Dept> deptList = new List<Dept>();
+            deptList = Db.vDepartment.Select(p => new Dept
+            {
+                DeptCode = p.CODE,
+                DeptName = p.DESCRIPTION
+            }).OrderBy(p => p.DeptName).ToList();
+            return deptList;
         }
     }
 }

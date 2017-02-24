@@ -63,6 +63,12 @@ namespace HKTDC.WebAPI.CHSW.Services
                 exceptionp.Code = HttpStatusCode.InternalServerError;
                 exceptionp.Message = "{\"Error_Code\": 107,\"Message\": \"Nullable Value Exception.\"}";
             }
+            else if (ex is UnauthorizedAccessException)
+            {
+                Errthrow.LogPriority = "Heigh";
+                exceptionp.Code = HttpStatusCode.Unauthorized;
+                exceptionp.Message = "The User is unauthorized.";
+            }
             else
             {
                 Errthrow.LogPriority = "Medium";
@@ -80,6 +86,16 @@ namespace HKTDC.WebAPI.CHSW.Services
             Db.ErrorLogs.Add(Errthrow);
             Db.SaveChanges();
             return exceptionp;
+        }
+
+        public void GenerateLog(string msg)
+        {
+            Models.ErrorLog Errthrow = new Models.ErrorLog();
+            Errthrow.LogType = "Debug";
+            Errthrow.ErrorMessage = msg;
+            Errthrow.LogCreatedDateTime = DateTime.Now;
+            Db.ErrorLogs.Add(Errthrow);
+            Db.SaveChanges();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HKTDC.WebAPI.CHSW.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -36,6 +37,12 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             if (!String.IsNullOrEmpty(headerUserID) && Utility.Equals(headerUserID, userID))
             {
                 ret = true;
+            }
+
+            if(!ret)
+            {
+                BaseService ser = new BaseService();
+                ser.GenerateLog(headerUserID);
             }
 
             return ret;

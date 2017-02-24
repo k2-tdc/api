@@ -76,7 +76,54 @@ namespace HKTDC.WebAPI.CHSW.Services
                 throw e;
             }
         }
-        
+
+        /// <summary>
+        /// To Get the Applicant Or Recommed by Details 
+        /// </summary>
+        /// <param name="RuleID">IT0005,IT0008</param>
+        /// <param name="UserId">ApporverID</param>
+        /// <param name="WorkId">UserID</param>
+        ///  SP  : pProcessWorkerGet (Refer the pProcessWorkerGet SP From  Workflow DataBase )
+        /// <returns>Applicant list</returns>
+        public List<Applicant> GetAllEmployeeDetails(string RuleID, string WorkId, string UserId, string EstCost)
+        {
+            try
+            {
+                List<Applicant> employees = new List<Applicant>();
+                SqlParameter[] sqlp = {
+                     new SqlParameter ("RuleCode",RuleID.Replace(",", ";") ),
+                     new SqlParameter("UserID",DBNull.Value),
+                    new SqlParameter("WorkerID", DBNull.Value),
+                    new SqlParameter("EstCost", DBNull.Value)};
+                if (!string.IsNullOrEmpty(UserId))
+                {
+                    sqlp[1].Value = UserId;
+                }
+                if (!string.IsNullOrEmpty(WorkId))
+                {
+                    sqlp[2].Value = WorkId;
+                }
+                if (!string.IsNullOrEmpty(EstCost))
+                {
+                    sqlp[3].Value = EstCost;
+                }
+                employees = Db.Database.SqlQuery<Applicant>("exec [pProcessWorkerGet] @RuleCode,@UserID,@WorkerID,@EstCost", sqlp).ToList(); // Refer the pProcessWorkerGet SP From  Workflow DataBase
+                if (!string.IsNullOrEmpty(EstCost))
+                {
+                    return employees.DistinctBy(p => p.WorkerId).ToList();
+                }
+                else
+                {
+                    return employees;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #region old code
         /// <summary>
         ///  Get the Processlist & Menu Item basd on the login User
@@ -326,7 +373,7 @@ namespace HKTDC.WebAPI.CHSW.Services
         //        {
         //            return employees;
         //        }
-                   
+
         //    }
         //    catch (Exception ex)
         //    {
@@ -341,7 +388,7 @@ namespace HKTDC.WebAPI.CHSW.Services
         //                UserFullName = p.FullName
         //            }).OrderBy(p => p.UserFullName).ToList();
         //}
-        
+
         ///// <summary>
         ///// To get the List of Status
         ///// Table  : ProcessStepList
@@ -367,7 +414,7 @@ namespace HKTDC.WebAPI.CHSW.Services
 
         //    return PStatus;
         //}
-        
+
         ///// <summary>
         ///// To Return the Process List Details
         ///// SP : K2_ProcessList
@@ -564,7 +611,7 @@ namespace HKTDC.WebAPI.CHSW.Services
         //    }
 
         //}
-        
+
         //public void DeleteFile(string GUID)
         //{
         //    try
@@ -618,7 +665,7 @@ namespace HKTDC.WebAPI.CHSW.Services
         //        throw ex;
         //    }
         //}
-        
+
         //public List<WorklistItem> GetWorkflowTasks()
         //{
 

@@ -10,7 +10,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
 {
     public class WorkflowFacade
     {
-        private ServiceContext context = new ServiceContext();
+        private ServiceContext context;
         private WFClientService wfclient;
 
         private string ProcessFullName = ConfigurationManager.AppSettings["ProcessName"].ToString();
@@ -20,14 +20,9 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         {
             ServiceContext.Initialize();
             wfclient = new WFClientService(AuthenticationType.Windows);
-        }
-
-        public void MyTestInitialize()
-        {
-
             this.context = new ServiceContext();
-
         }
+
 
         /// <summary>
         ///A test for StartProcessInstance

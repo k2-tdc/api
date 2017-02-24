@@ -18,7 +18,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             historyService = new HistoryService();
         }
         
-        [Route("users/{UserId}/approval-history/computer-app/{ReferID}")]
+        [Route("workflow/users/{UserId}/approval-history/computer-app/{ReferID}")]
         [HttpGet]
         public List<Review> GetHistoryDetails(string ReferID, string UserId, string ProInstID)
         {
@@ -30,7 +30,8 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                 }
                 else
                 {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    //throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)

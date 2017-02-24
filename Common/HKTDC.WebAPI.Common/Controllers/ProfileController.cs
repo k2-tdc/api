@@ -20,7 +20,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             this.profileService = new ProfileService();
         }
 
-        [Route("users/{UserId}/email-profiles")]
+        [Route("workflow/users/{UserId}/email-profiles")]
         [HttpGet]
         public List<NotificationProfileDTO> GetProfileList(string UserId, string profile = null)
         {
@@ -42,7 +42,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("users/{UserId}/email-profiles")]
+        [Route("workflow/users/{UserId}/email-profiles")]
         [HttpPost]
         public HttpResponseMessage SaveProfile(string UserId)
         {
@@ -71,7 +71,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("users/{UserId}/email-profiles/{ProfileID:int}")]
+        [Route("workflow/users/{UserId}/email-profiles/{ProfileID:int}")]
         [HttpPut]
         public HttpResponseMessage UpdateProfile(string UserId, int ProfileID)
         {
@@ -100,7 +100,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("users/{UserId}/email-profiles/{ProfileId:int}")]
+        [Route("workflow/users/{UserId}/email-profiles/{ProfileId:int}")]
         [HttpDelete]
         public HttpResponseMessage DeleteProfile(string UserId, int ProfileId)
         {
@@ -131,7 +131,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("users/{UserId}/email-profiles/{ProfileId:int}")]
+        [Route("workflow/users/{UserId}/email-profiles/{ProfileId:int}")]
         [HttpGet]
         public NotificationProfileDetailDTO GetProfileDetail(string UserId, int ProfileId)
         {
@@ -153,7 +153,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("profile-list")]
+        [Route("workflow/profile-list")]
         [HttpGet]
         public List<UserDTO> GetProfileFieldList()
         {

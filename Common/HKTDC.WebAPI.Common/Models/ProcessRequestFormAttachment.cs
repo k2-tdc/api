@@ -25,5 +25,6 @@ namespace HKTDC.WebAPI.Common.Models
         public string FileType { get; set; }
         public decimal FileSize { get; set; }
         public string Remark { get; set; }
+        public string AttachmentType { get; set; }
     }
 }

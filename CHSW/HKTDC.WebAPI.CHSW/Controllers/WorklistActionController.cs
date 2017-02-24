@@ -22,7 +22,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             this.approvalTaskService = new ApprovalTaskService();
         }
 
-        [Route("users/{UserId}/work-list/computer-app/resend-email")]
+        [Route("workflow/users/{UserId}/work-list/computer-app/resend-email")]
         [HttpPost]
         public HttpResponseMessage resendEmail(string UserId)
         {
@@ -64,7 +64,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("applications/computer-app/{ApplicationId}/recall")]
+        [Route("workflow/applications/computer-app/{ApplicationId}/recall")]
         [HttpPost]
         public string RecallAction(string ApplicationId, [FromBody] dynamic request)
         {
@@ -97,7 +97,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
 
         }
 
-        [Route("users/{UserId}/work-list/computer-app/approve")]
+        [Route("workflow/users/{UserId}/work-list/computer-app/approve")]
         [HttpPost]
         public string ApproveAction(string UserId, [FromBody] dynamic request)
         {
@@ -114,7 +114,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("users/{UserId}/work-list/computer-app/reject")]
+        [Route("workflow/users/{UserId}/work-list/computer-app/reject")]
         [HttpPost]
         public string RejectAction(string UserId, [FromBody] dynamic request)
         {
@@ -131,7 +131,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("users/{UserId}/work-list/computer-app/complete")]
+        [Route("workflow/users/{UserId}/work-list/computer-app/complete")]
         [HttpPost]
         public string CompleteAction(string UserId, [FromBody] dynamic request)
         {
@@ -148,7 +148,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("users/{UserId}/work-list/computer-app/return-to-applicant")]
+        [Route("workflow/users/{UserId}/work-list/computer-app/return-to-applicant")]
         [HttpPost]
         public string ReturnToApplicantAction(string UserId, [FromBody] dynamic request)
         {
@@ -165,7 +165,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("users/{UserId}/work-list/computer-app/recommend")]
+        [Route("workflow/users/{UserId}/work-list/computer-app/recommend")]
         [HttpPost]
         public string RecommendAction(string UserId, [FromBody] dynamic request)
         {
@@ -182,7 +182,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("users/{UserId}/work-list/computer-app/send-to-approver")]
+        [Route("workflow/users/{UserId}/work-list/computer-app/send-to-approver")]
         [HttpPost]
         public string SendToApproverAction(string UserId, [FromBody] dynamic request)
         {
@@ -199,7 +199,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("users/{UserId}/work-list/computer-app/return")]
+        [Route("workflow/users/{UserId}/work-list/computer-app/return")]
         [HttpPost]
         public string ReturnAction(string UserId, [FromBody] dynamic request)
         {
@@ -216,7 +216,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("users/{UserId}/work-list/computer-app/delete")]
+        [Route("workflow/users/{UserId}/work-list/computer-app/delete")]
         [HttpPost]
         public string DeleteAction(string UserId, [FromBody] dynamic request)
         {
@@ -233,7 +233,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("users/{UserId}/work-list/computer-app/forward")]
+        [Route("workflow/users/{UserId}/work-list/computer-app/forward")]
         [HttpPost]
         public string ForwardAction(string UserId, [FromBody] dynamic request)
         {
@@ -250,7 +250,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("users/{UserId}/work-list/computer-app/cancel")]
+        [Route("workflow/users/{UserId}/work-list/computer-app/cancel")]
         [HttpPost]
         public string CancelAction(string UserId, [FromBody] dynamic request)
         {
@@ -267,7 +267,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("users/{UserId}/work-list/computer-app/send-to-its")]
+        [Route("workflow/users/{UserId}/work-list/computer-app/send-to-its")]
         [HttpPost]
         public string SendToITSAction(string UserId, [FromBody] dynamic request)
         {
@@ -284,7 +284,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("users/{UserId}/work-list/computer-app/send-to-applicant")]
+        [Route("workflow/users/{UserId}/work-list/computer-app/send-to-applicant")]
         [HttpPost]
         public string SendToApplicantAction(string UserId, [FromBody] dynamic request)
         {
@@ -301,7 +301,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("users/{UserId}/work-list/computer-app/return-to-prepare")]
+        [Route("workflow/users/{UserId}/work-list/computer-app/return-to-prepare")]
         [HttpPost]
         public string ReturnToPrepareAction(string UserId, [FromBody] dynamic request)
         {
@@ -344,7 +344,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("users/{UserId}/work-list/computer-app/{SN}")]
+        [Route("workflow/users/{UserId}/work-list/computer-app/{SN}")]
         [HttpGet]
         public List<Review> GetApproveDetails(string UserId, string SN, string ReferID)
         {
@@ -357,7 +357,8 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                 }
                 else
                 {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    //throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)

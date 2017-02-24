@@ -21,14 +21,14 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             this.reportService = new ReportService();
         }
 
-        [Route("departments")]
+        [Route("workflow/departments")]
         [HttpGet]
         public List<Dept> getDeptList()
         {
             return reportService.getDeptList();
         }
 
-        [Route("users")]
+        [Route("workflow/users")]
         [HttpGet]
         public List<VWEmployeeDTO> getApplicantList()
         {

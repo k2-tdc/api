@@ -158,6 +158,7 @@
     <Compile Include="Models\ProcessList.cs" />
     <Compile Include="Models\ProcessRequestFormAttachment.cs" />
     <Compile Include="Models\ProcessStepList.cs" />
+    <Compile Include="Models\VDepartment.cs" />
     <Compile Include="Models\vUser.cs" />
     <Compile Include="Models\WebModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

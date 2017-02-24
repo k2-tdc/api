@@ -287,11 +287,14 @@ namespace HKTDC.WebAPI.Common.Services
             bool haveAdminPermission = checkAdminPermission(UserId, "admin");
 
             var v = (from a in Db.NotificationProfile
+                     join b in Db.ProcessList on a.ProcessID equals b.ProcessID into pa
+                     from b in pa.DefaultIfEmpty()
                      where a.EmailNotificationProfileID == ProfileId && a.UserID == (haveAdminPermission? a.UserID: UserId)
                      select new NotificationProfileDetailDTO
                      {
                          EmailNotificationProfileID = a.EmailNotificationProfileID,
                          ProcessID = a.ProcessID,
+                         ProcessName = b.ProcessName,
                          StepID = a.ActivityGroupID,
                          UserID = a.UserID,
                          EmployeeID = a.EmployeeID,

@@ -19,7 +19,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         }
 
         //Get Details for WorkList Based on the Search Options
-        [Route("users/{UserId}/work-list/computer-app")]
+        [Route("workflow/users/{UserId}/work-list/computer-app")]
         [HttpGet]
         public List<ChkFrmStatus> GetWorklist(string UserId, string refid = null, string status = null, [FromUri(Name = "start-date")] string FDate = null, [FromUri(Name = "end-date")] string TDate = null, string SUser = null, string ProsIncId = null, int offset = 0, int limit = 999999, string sort = null)
         {
@@ -42,7 +42,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                 }
                 else
                 {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -63,7 +63,8 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                 }
                 else
                 {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    //throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)

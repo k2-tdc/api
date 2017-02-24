@@ -18,5 +18,6 @@ namespace HKTDC.WebAPI.Common.DBContext
         public virtual DbSet<ProcessActivityGroup> ProcessActivityGroup { get; set; }
         public virtual DbSet<ProcessActivityGroupStep> ProcessActivityGroupStep { get; set; }
         public virtual DbSet<ProcessRequestFormAttachment> ProcessRequestFormAttachment { get; set; }
+        public virtual DbSet<VDepartment> vDepartment { get; set; }
     }
 }

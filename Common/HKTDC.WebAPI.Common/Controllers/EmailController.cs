@@ -20,7 +20,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             this.emailService = new EmailService();
         }
 
-        [Route("email-templates")]
+        [Route("workflow/email-templates")]
         [HttpGet]
         public List<EmailTemplateDTO> GetEmailTemplateList(string process = null, int step = 0)
         {
@@ -35,7 +35,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
         
-        [Route("email-templates")]
+        [Route("workflow/email-templates")]
         [HttpPost]
         public HttpResponseMessage SaveEmailTemplate()
         {
@@ -65,7 +65,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("email-templates/{TemplateId:int}")]
+        [Route("workflow/email-templates/{TemplateId:int}")]
         [HttpPut]
         public HttpResponseMessage UpdateEmailTemplate(int TemplateId)
         {
@@ -95,7 +95,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("email-templates/{TemplateId:int}")]
+        [Route("workflow/email-templates/{TemplateId:int}")]
         [HttpDelete]
         public HttpResponseMessage DeleteEmailTemplate(int TemplateId)
         {
@@ -120,7 +120,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("email-templates/{TemplateId:int}")]
+        [Route("workflow/email-templates/{TemplateId:int}")]
         [HttpGet]
         public EmailTemplateDetailDTO GetEmailTemplateDetail(int TemplateId)
         {

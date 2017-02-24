@@ -22,7 +22,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             this.commonService = new CommonService();
         }
 
-        [Route("applications")]
+        [Route("workflow/applications")]
         [HttpPost]
         public Reference GetReferenceId()
         {
@@ -37,7 +37,14 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("activity-groups")]
+        [Route("workflow/departments")]
+        [HttpGet]
+        public List<Dept> getDeptList()
+        {
+            return this.commonService.getDeptList();
+        }
+
+        [Route("workflow/activity-groups")]
         [HttpGet]
         public List<ProcessStepListDTO> GetEmailProcessStepList(string process = null, [FromUri(Name = "activity-group-type")] string activityGroupType = null)
         {
@@ -52,9 +59,9 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
         
-        [Route("attachments")]
+        [Route("workflow/attachments")]
         [HttpPost]
-        public HttpResponseMessage SubmitFile(string refid, string process)
+        public HttpResponseMessage SubmitFile(string refid, string process, string AttachmentType = null)
         {
 
             string result = "Failed";
@@ -67,7 +74,7 @@ namespace HKTDC.WebAPI.Common.Controllers
                     throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
                 }
 
-                result = this.commonService.UploadFiles(HttpContext.Current.Request, getCurrentUser(Request), refid, process);
+                result = this.commonService.UploadFiles(HttpContext.Current.Request, getCurrentUser(Request), refid, process, AttachmentType);
 
                 if (result == "Failed")
                     return Request.CreateResponse(HttpStatusCode.InternalServerError, "Unable to Upload file(s)"); //throws when error in SP
@@ -81,7 +88,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("attachments")]
+        [Route("workflow/attachments")]
         [HttpGet]
         public HttpResponseMessage DownloadFile(string guid, string process)
         {
@@ -94,7 +101,7 @@ namespace HKTDC.WebAPI.Common.Controllers
                     var attachmentRecord = this.commonService.GetAttachment(process, new Guid(guid), headerUserID);
                     if (attachmentRecord != null)
                     {
-                        string Dircur = attachmentRecord.UNCPath + "/" + attachmentRecord.FormID.ToString(); //UNC Path From Web Config
+                        string Dircur = attachmentRecord.UNCPath + "/" + attachmentRecord.FormID.ToString() + (!string.IsNullOrEmpty(attachmentRecord.AttachmentType) ? ("/" + attachmentRecord.AttachmentType) : ""); //UNC Path From Web Config
 
                         if (Directory.Exists(Dircur))
                         {
@@ -125,7 +132,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("attachments")]
+        [Route("workflow/attachments")]
         [HttpDelete]
         public HttpResponseMessage DeleteFile(string guid, string process)
         {
@@ -158,7 +165,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("attachments/config")]
+        [Route("workflow/attachments/config")]
         [HttpGet]
         public List<CommonSettingsDTO> GetFileType(string process)
         {
@@ -173,7 +180,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("users")]
+        [Route("workflow/users")]
         [HttpGet]
         public List<UserDTO> getAllUser()
         {
@@ -189,42 +196,42 @@ namespace HKTDC.WebAPI.Common.Controllers
         }
 
         // Get Selected Applicant Details Dept,Title 
-        [Route("users/{UserId}")]
+        [Route("workflow/users/{Applicant}")]
         [HttpGet]
-        public ApplicantDetails GetApplicant(string UserId, string Applicant)
+        public ApplicantDetails GetApplicant(string Applicant)
         {
             try
             {
-                if (compareUser(Request, UserId))
-                {
+                //if (compareUser(Request, UserId))
+                //{
                     return this.commonService.GetApplicantDetails(Applicant);
-                }
-                else
-                {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
-                }
+                //}
+                //else
+                //{
+                //    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                //}
             }
             catch (Exception ex)
             {
-                var err = this.commonService.ErrorLog(ex, UserId);
+                var err = this.commonService.ErrorLog(ex, getCurrentUser(Request));
                 throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }
 
-        [Route("users/{UserId}/workers")]
+        [Route("workflow/users/{UserId}/workers")]
         [HttpGet]
-        public List<Applicant> GetApprover(string UserId, string rule, string EstCost, string Applicant, string WorkId = null)
+        public List<Applicant> GetApprover(string UserId, string rule)
         {
             try
             {
-                if (compareUser(Request, UserId) || compareUser(Request, WorkId))
-                {
-                    return this.commonService.GetAllEmployeeDetails(rule, WorkId, Applicant, EstCost);
-                }
-                else
-                {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
-                }
+                //if (compareUser(Request, UserId) || compareUser(Request, WorkId))
+                //{
+                    return this.commonService.GetAllEmployeeDetails(rule, null, UserId, null);
+                //}
+                //else
+                //{
+                //    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                //}
             }
             catch (Exception ex)
             {
@@ -234,7 +241,7 @@ namespace HKTDC.WebAPI.Common.Controllers
         }
 
 
-        [Route("users/{UserId}/applications")]
+        [Route("workflow/users/{UserId}/applications")]
         [HttpGet]
         public List<ProcessListDTO> GetProcessList(string UserId)
         {
@@ -256,7 +263,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("users/{UserId}/work-list-count")]
+        [Route("workflow/users/{UserId}/work-list-count")]
         [HttpGet]
         public HttpResponseMessage GetWorklistCount(string UserId, string process = null)
         {
@@ -280,7 +287,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("users/{UserId}/applications/authorized-pages")]
+        [Route("workflow/users/{UserId}/applications/authorized-pages")]
         [HttpGet]
         public Menus GetMenuItem(string UserId, string process, string page = null)
         {
@@ -309,7 +316,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("users/{UserId}/applications/{ProcessName}/process-list")]
+        [Route("workflow/users/{UserId}/applications/{ProcessName}/process-list")]
         [HttpGet]
         public List<ProcessListDTO> GetProcessListForWorkerRule(string UserId, string ProcessName)
         {
@@ -332,7 +339,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
         
-        [Route("workers/{WorkId}/owners")]
+        [Route("workflow/workers/{WorkId}/owners")]
         [HttpGet]
         public List<Applicant> GetEmployee(string WorkId, string rule, string UserId = null)
         {
@@ -354,7 +361,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("users/{UserId}/work-list")]
+        [Route("workflow/users/{UserId}/work-list")]
         [HttpGet]
         public List<ChkFrmStatus> GetWorklist(string UserId, int offset = 0, int limit = 99999, string sort = null, string refid = null, string status = null, [FromUri(Name = "start-date")] string FDate = null, [FromUri(Name = "end-date")] string TDate = null, string ProsIncId = null, string process = null)
         {

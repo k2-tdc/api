@@ -106,6 +106,7 @@ namespace HKTDC.WebAPI.Common.Models
     {
         public int EmailNotificationProfileID { get; set; }
         public int ProcessID { get; set; }
+        public string ProcessName { get; set; }
         public int StepID { get; set; }
         public string UserID { get; set; }
         public string EmployeeID { get; set; }
@@ -251,5 +252,10 @@ namespace HKTDC.WebAPI.Common.Models
         public DateTime CreatedOn { get; set; }
         public string CreatedBy { get; set; }
         public bool Enabled { get; set; }
+    }
+    public class Dept
+    {
+        public string DeptName { get; set; }
+        public string DeptCode { get; set; }
     }
 }
