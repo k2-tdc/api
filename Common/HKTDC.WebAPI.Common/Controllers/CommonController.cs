@@ -269,20 +269,26 @@ namespace HKTDC.WebAPI.Common.Controllers
         {
             try
             {
-                Tuple<bool, string> response = this.commonService.GetWorklistCount(UserId, process);
-                if (response.Item1)
+                if (compareUser(Request, UserId))
                 {
-                    return new HttpResponseMessage { Content = new StringContent(response.Item2, System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    Tuple<bool, string> response = this.commonService.GetWorklistCount(UserId, process);
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent(response.Item2, System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        //return Request.CreateResponse(HttpStatusCode.InternalServerError, "Fail");
+                        return new HttpResponseMessage { Content = new StringContent("", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    //return Request.CreateResponse(HttpStatusCode.InternalServerError, "Fail");
-                    return new HttpResponseMessage { Content = new StringContent("", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
             {
-                var err = this.commonService.ErrorLog(ex, "");
+                var err = this.commonService.ErrorLog(ex, getCurrentUser(Request));
                 throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }

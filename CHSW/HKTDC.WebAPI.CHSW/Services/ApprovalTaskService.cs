@@ -259,7 +259,8 @@ namespace HKTDC.WebAPI.CHSW.Services
                     }
                     else
                     {
-                        throw new System.ArgumentException("The user has no enough permission to open this item");
+                        //throw new System.ArgumentException("The user has no enough permission to open this item");
+                        return null;
                     }
                 }
 

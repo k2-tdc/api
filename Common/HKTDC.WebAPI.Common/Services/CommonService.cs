@@ -164,12 +164,12 @@ namespace HKTDC.WebAPI.Common.Services
             try
             {
                 listDTO = (from a in Db.ProcessList
-                         where a.Flag != 1
                          select new ProcessListDTO
                          {
                              ProcessID = a.ProcessID,
                              ProcessName = a.ProcessName,
-                             ProcessDisplayName = a.ProcessDisplayName
+                             ProcessDisplayName = a.ProcessDisplayName,
+                             Flag = a.Flag
                          }).ToList();
             }
             catch (Exception ex)

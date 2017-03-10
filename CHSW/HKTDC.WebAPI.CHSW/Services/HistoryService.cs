@@ -64,7 +64,7 @@ namespace HKTDC.WebAPI.CHSW.Services
             }
             rawHistory =  Db.Database.SqlQuery<ApproverHistory>("exec [K2_ApproverHistory] " + queryParameter, sqlp.ToArray()).ToList();
             
-            foreach (var request in rawHistory.DistinctBy(p => p.ProcessLogID))
+            foreach (var request in rawHistory.DistinctBy(p => p.ProcInstID))
             {
                 ChkFrmStatus tmpStatus = new ChkFrmStatus();
                 tmpStatus.FormID = request.FormID;
@@ -84,20 +84,20 @@ namespace HKTDC.WebAPI.CHSW.Services
                 tmpStatus.ApplicantUserId = request.ApplicantUserId;
 
                 List<ServiceLevel1> Level1lst = new List<ServiceLevel1>();
-                foreach (var FirstLevelService in rawHistory.Where(P => P.ProcessLogID == request.ProcessLogID).Select(P => new { P.MMenu, P.MMenuGUID }).Distinct())
+                foreach (var FirstLevelService in rawHistory.Where(P => P.ProcessLogID == request.ProcessLogID && P.ProcInstID == request.ProcInstID).Select(P => new { P.MMenu, P.MMenuGUID }).Distinct())
                 {
                     ServiceLevel1 Level1 = new ServiceLevel1();
                     Level1.Name = FirstLevelService.MMenu;
                     Level1.GUID = FirstLevelService.MMenuGUID;
                     List<ServiceLevel2> Level2lst = new List<ServiceLevel2>();
-                    foreach (var SecondLevelService in rawHistory.Where(P => P.ProcessLogID == request.ProcessLogID && P.MMenu == FirstLevelService.MMenu).DistinctBy(P => P.SubMenu))
+                    foreach (var SecondLevelService in rawHistory.Where(P => P.ProcessLogID == request.ProcessLogID && P.ProcInstID == request.ProcInstID  && P.MMenu == FirstLevelService.MMenu).DistinctBy(P => P.SubMenu))
                     {
                         ServiceLevel2 Level2 = new ServiceLevel2();
                         Level2.Name = SecondLevelService.SubMenu;
                         Level2.GUID = SecondLevelService.SubMenuGUID;
                         Level2.SValue = SecondLevelService.ServiceTypeValue;
                         List<ServiceLevel3> Level3lst = new List<ServiceLevel3>();
-                        foreach (var ThirsLevelService in rawHistory.Where(P => P.ProcessLogID == request.ProcessLogID && P.MMenu == FirstLevelService.MMenu && P.SubMenu == SecondLevelService.SubMenu).OrderBy(P => P.ServiceGUID))
+                        foreach (var ThirsLevelService in rawHistory.Where(P => P.ProcessLogID == request.ProcessLogID && P.ProcInstID == request.ProcInstID  && P.MMenu == FirstLevelService.MMenu && P.SubMenu == SecondLevelService.SubMenu).OrderBy(P => P.ServiceGUID))
                         {
                             ServiceLevel3 Level3 = new ServiceLevel3();
                             Level3.Name = ThirsLevelService.SSubMenu;
@@ -147,6 +147,11 @@ namespace HKTDC.WebAPI.CHSW.Services
                 if (!string.IsNullOrEmpty(ProInstID))
                     sqlp[3].Value = ProInstID;
                 MList = Db.Database.SqlQuery<RequestReview>("exec [K2_Review_new] @ReferID,@UserId,@Type,@ProInstID", sqlp).ToList();
+                SqlParameter[] sqlp1 = {
+                     new SqlParameter ("ReferID",ReferID ),
+                    new SqlParameter ("UserId",UserId ) ,
+                    new SqlParameter ("Type","Review" )};
+                CClist = Db.Database.SqlQuery<CC>("exec [K2_ReviewCC] @ReferID,@UserId,@Type", sqlp1).ToList();
 
                 if (MList != null)
                 {

@@ -39,6 +39,7 @@ namespace HKTDC.WebAPI.CHSW.DBContext
         public virtual DbSet<VW_EMPLOYEE> VW_EMPLOYEE { get; set; }
         public virtual DbSet<CommonSettings> CommonSettings { get; set; }
         public virtual DbSet<VDepartment> vDepartment { get; set; }
+        public virtual DbSet<MenuItem> MenuItem { get; set; }
     }
     
 }

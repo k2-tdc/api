@@ -37,6 +37,26 @@ namespace HKTDC.WebAPI.Common.Services
             return havePermission;
         }
 
+        public bool checkHavePermission(string UserId, string ProcessName, string MenuItem)
+        {
+            bool havePermission = false;
+            string menuItem = Db.SPAMenuItem.Where(p => p.ItemName.ToUpper() == MenuItem.ToUpper()).Select(p => p.SPAMenuItemGUID).FirstOrDefault();
+            if (!string.IsNullOrEmpty(menuItem))
+            {
+                SqlParameter[] sqlp = {
+                     new SqlParameter("EmployeeId",UserId),
+                     new SqlParameter("ProcessName",ProcessName.ToUpper()),
+                     new SqlParameter("Page",menuItem)};
+                MenuList MList = Db.Database.SqlQuery<MenuList>("exec [K2_GetMenu] @ProcessName,@EmployeeId,@Page", sqlp).FirstOrDefault();
+                if(MList != null && !string.IsNullOrEmpty(MList.EMPLOYEENO))
+                {
+                    havePermission = true;
+                }
+            }
+
+            return havePermission;
+        }
+
         public bool isAdminRole(string role)
         {
             if (role == "Administrator" || role == "Administrators" || role == "Admins" || role == "Admin")

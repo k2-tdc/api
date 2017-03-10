@@ -1,10 +1,12 @@
 ﻿using HKTDC.WebAPI.CHSW.Models;
 using HKTDC.WebAPI.CHSW.Services;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
 
 namespace HKTDC.WebAPI.CHSW.Controllers
@@ -81,14 +83,34 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         //To Delete the Draft 
         [Route("workflow/users/{UserId}/draft-list/computer-app")]
         [HttpDelete]
-        public HttpResponseMessage DeleteDraft(string UserId, string ReferID)
+        public HttpResponseMessage DeleteDraft(string UserId, [FromBody] dynamic request)
         {
             string result = "Failed";
             try
             {
-                if (compareUser(Request, UserId))
-                {
-                    result = this.draftService.DeleteDraft(UserId, ReferID);
+                //if (compareUser(Request, UserId))
+                //{
+                    var s = HttpContext.Current.Request.Form.GetValues("data");
+                
+                    string json;
+                    //To check whether the input is from request body or formdata
+                    if (s == null)
+                        json = JsonConvert.SerializeObject(request);
+                    else
+                        json = s[0];
+                    
+                    if (string.IsNullOrEmpty(json))
+                        throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
+                    dynamic stuff = JsonConvert.DeserializeObject(json);
+                    foreach (dynamic item in stuff.data)
+                    {
+                        result = this.draftService.DeleteDraft(UserId, (item.ReferenceID).ToString());
+                        if (result == "Failed")
+                            return Request.CreateResponse(HttpStatusCode.InternalServerError); //throws when error in SP
+                        else if (result == "Unauthorized")
+                            return Request.CreateResponse(HttpStatusCode.Unauthorized);
+                    }
+                    
 
                     if (result == "Failed")
                         return Request.CreateResponse(HttpStatusCode.InternalServerError); //throws when error in SP
@@ -96,12 +118,12 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                         return Request.CreateResponse(HttpStatusCode.Unauthorized);
                     else
                         return Request.CreateResponse(HttpStatusCode.OK, result);
-                }
-                else
-                {
-                    //throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
-                    throw new UnauthorizedAccessException();
-                }
+                //}
+                //else
+                //{
+                //    //throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                //    throw new UnauthorizedAccessException();
+                //}
             }
             catch (Exception ex)
             {

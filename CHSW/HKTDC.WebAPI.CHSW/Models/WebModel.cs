@@ -46,12 +46,14 @@ namespace HKTDC.WebAPI.CHSW.Models
     {
         public Guid GUID { get; set; }
         public string Name { get; set; }
+        public int ServiceGUID { get; set; }
         public List<ServiceLevel2> Level2 { get; set; }
     }
     public class ServiceLevel2
     {
         public Guid GUID { get; set; }
         public string Name { get; set; }
+        public int ServiceGUID { get; set; }
         public string SValue { get; set; }
         public List<ServiceLevel3> Level3 { get; set; }
     }
@@ -59,6 +61,7 @@ namespace HKTDC.WebAPI.CHSW.Models
     {
         public Guid GUID { get; set; }
         public string Name { get; set; }
+        public int ServiceGUID { get; set; }
         public string SValue { get; set; }
         public string Approver { get; set; }
         public string ActionTaker { get; set; }
@@ -176,6 +179,8 @@ namespace HKTDC.WebAPI.CHSW.Models
         public string EMPLOYEENO { get; set; }
         public string Menulink { get; set; }
         public string Scount { get; set; }
+        public string RoleName { get; set; }
+        public string MenuId { get; set; }
     }
     public class CheckStatus
     {

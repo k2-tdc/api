@@ -22,11 +22,11 @@ namespace HKTDC.WebAPI.Common.Controllers
 
         [Route("workflow/email-templates")]
         [HttpGet]
-        public List<EmailTemplateDTO> GetEmailTemplateList(string process = null, int step = 0)
+        public List<EmailTemplateDTO> GetEmailTemplateList(string process = null, [FromUri(Name = "activity-group")] int step = 0)
         {
             try
             {
-                return this.emailService.GetEmailTemplateList(process, step);
+                return this.emailService.GetEmailTemplateList(getCurrentUser(Request), process, step);
             }
             catch (Exception ex)
             {
@@ -46,7 +46,7 @@ namespace HKTDC.WebAPI.Common.Controllers
                 if (string.IsNullOrEmpty(json))
                     throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
                 dynamic stuff = JsonConvert.DeserializeObject(json);
-                Tuple<bool, string> response = this.emailService.SaveEmailTemplate(stuff);
+                Tuple<bool, string> response = this.emailService.SaveEmailTemplate(getCurrentUser(Request), stuff);
                 if (response.Item1)
                 {
                     return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
@@ -76,7 +76,7 @@ namespace HKTDC.WebAPI.Common.Controllers
                 if (string.IsNullOrEmpty(json))
                     throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
                 dynamic stuff = JsonConvert.DeserializeObject(json);
-                Tuple<bool,string> response = this.emailService.SaveEmailTemplate(stuff);
+                Tuple<bool,string> response = this.emailService.SaveEmailTemplate(getCurrentUser(Request), stuff);
                 if (response.Item1)
                 {
                     return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
@@ -126,7 +126,7 @@ namespace HKTDC.WebAPI.Common.Controllers
         {
             try
             {
-                return this.emailService.GetEmailTemplateDetail(TemplateId);
+                return this.emailService.GetEmailTemplateDetail(getCurrentUser(Request), TemplateId);
             }
             catch (Exception ex)
             {

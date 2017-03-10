@@ -64,19 +64,19 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                 return new HttpResponseMessage { Content = new StringContent("{\"FormID\":\"" + result + "\"}", System.Text.Encoding.UTF8, "application/json") };
         }
 
-        [Route("workflow/users/{UserId}/workers/computer-app")]
+        [Route("workflow/users/{UserId}/approvers/computer-app")]
         [HttpGet]
         public List<Applicant> GetApprover(string UserId, string rule, string cost)
         {
             try
             {
-                //if (compareUser(Request, UserId) || compareUser(Request, WorkId))
+                //if (compareUser(Request, UserId))
                 //{
                     return this.requestService.GetAllEmployeeDetails(rule, null, UserId, cost);
                 //}
                 //else
                 //{
-                //    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                //    throw new UnauthorizedAccessException();
                 //}
             }
             catch (Exception ex)

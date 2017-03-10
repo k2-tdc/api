@@ -19,5 +19,15 @@ namespace HKTDC.WebAPI.Common.DBContext
         public virtual DbSet<ProcessActivityGroupStep> ProcessActivityGroupStep { get; set; }
         public virtual DbSet<ProcessRequestFormAttachment> ProcessRequestFormAttachment { get; set; }
         public virtual DbSet<VDepartment> vDepartment { get; set; }
+        public virtual DbSet<SPAUserRole> SPAUserRole { get; set; }
+        public virtual DbSet<SPAUserRoleEntity> SPAUserRoleEntity { get; set; }
+        public virtual DbSet<SPAUserRoleMember> SPAUserRoleMember { get; set; }
+        public virtual DbSet<SPAUserRoleMemberGroup> SPAUserRoleMemberGroup { get; set; }
+        public virtual DbSet<SPAUserRoleProcess> SPAUserRoleProcess { get; set; }
+        public virtual DbSet<SPAMenuGroup> SPAMenuGroup { get; set; }
+        public virtual DbSet<SPAMenuItem> SPAMenuItem { get; set; }
+        public virtual DbSet<SPAMenuMaster> SPAMenuMaster { get; set; }
+        public virtual DbSet<ProcessWorkerRule> ProcessWorkerRule { get; set; }
+        public virtual DbSet<ProcessWorkerRuleSetting> ProcessWorkerRuleSetting { get; set; }
     }
 }

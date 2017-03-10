@@ -81,7 +81,7 @@ namespace HKTDC.WebAPI.CHSW.Services
             return ServiceList;
         }
 
-        public List<VWEmployeeDTO> GetForwardEmployee(string applicant)
+        public List<VWEmployeeDTO> GetForwardEmployee(string applicant, string currentUser)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace HKTDC.WebAPI.CHSW.Services
                 {
                     UserId = p.WorkerId,
                     UserFullName = p.WorkerFullName
-                }).OrderBy(p => p.UserFullName).ToList();
+                }).Where(p => p.UserId != currentUser).OrderBy(p => p.UserFullName).ToList();
 
                 return employeeDTO;
             }

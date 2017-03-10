@@ -301,7 +301,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        [Route("workflow/users/{UserId}/work-list/computer-app/return-to-prepare")]
+        [Route("workflow/users/{UserId}/work-list/computer-app/return-to-preparer")]
         [HttpPost]
         public string ReturnToPrepareAction(string UserId, [FromBody] dynamic request)
         {
@@ -346,14 +346,14 @@ namespace HKTDC.WebAPI.CHSW.Controllers
 
         [Route("workflow/users/{UserId}/work-list/computer-app/{SN}")]
         [HttpGet]
-        public List<Review> GetApproveDetails(string UserId, string SN, string ReferID)
+        public List<Review> GetApproveDetails(string UserId, string SN, string refid)
         {
             try
             {
                 if (compareUser(Request, UserId))
                 {
                     string ProsIncId = SN.Substring(0, SN.IndexOf('_'));
-                    return this.approvalTaskService.GetApproveDetails(UserId, ProsIncId, SN, ReferID);
+                    return this.approvalTaskService.GetApproveDetails(UserId, ProsIncId, SN, refid);
                 }
                 else
                 {

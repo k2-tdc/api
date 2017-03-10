@@ -97,5 +97,30 @@ namespace HKTDC.WebAPI.CHSW.Services
             Db.ErrorLogs.Add(Errthrow);
             Db.SaveChanges();
         }
+
+        public bool checkPagePermission(string pageName, string userId)
+        {
+            bool havePermission = false;
+            try
+            {
+                var pageRecord = Db.MenuItem.Where(p => p.ItemName == pageName).FirstOrDefault();
+                if (pageRecord != null)
+                {
+                    SqlParameter[] sqlp = {
+                     new SqlParameter ("UserId", userId),
+                     new SqlParameter("Page", pageRecord.SPAMenuItemGUID)
+                };
+                    var menuList = Db.Database.SqlQuery<MenuList>("exec [K2_GetMenuPermission] @UserId,@Page", sqlp).FirstOrDefault();
+                    if (menuList != null && !string.IsNullOrEmpty(menuList.EMPLOYEENO))
+                    {
+                        havePermission = true;
+                    }
+                }
+                return havePermission;
+            } catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

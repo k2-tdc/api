@@ -60,6 +60,7 @@ namespace HKTDC.WebAPI.Common.Models
         public int ProcessID { get; set; }
         public string ProcessName { get; set; }
         public string ProcessDisplayName { get; set; }
+        public Nullable<int> Flag { get; set; }
     }
     public class ProcessStepListDTO
     {
@@ -257,5 +258,135 @@ namespace HKTDC.WebAPI.Common.Models
     {
         public string DeptName { get; set; }
         public string DeptCode { get; set; }
+    }
+    public class UserRoleDTO
+    {
+        public string UserRoleGUID { get; set; }
+        public string Role { get; set; }
+        public string Desc { get; set; }
+    }
+    public class UserRoleDetailDTO
+    {
+        public string UserRoleGUID { get; set; }
+        public string Role { get; set; }
+        public string Desc { get; set; }
+        public int ProcessId { get; set; }
+        public string ProcessName { get; set; }
+        public List<UserRoleMemberDTO> Member { get; set; }
+    }
+    public class UserRoleMemberDTO
+    {
+        public string UserRoleMemberGUID { get; set; }
+        public string Type { get; set; }
+        public string Name { get; set; }
+        public Nullable<DateTime> ExpiryDate { get; set; }
+    }
+    public class UserRoleMemberDetailDTO
+    {
+        public string UserRoleGUID { get; set; }
+        public string UserRoleMemberGUID { get; set; }
+        public string Role { get; set; }
+        public string Type { get; set; }
+        public string TypeVal { get; set; }
+        public Nullable<DateTime> ExpiryDate { get; set; }
+    }
+    public class UserPermissionSP
+    {
+        public string RolePermissionGUID { get; set; }
+        public string Process { get; set; }
+        public string Permission { get; set; }
+        public string Role { get; set; }
+    }
+    public class UserPermissionDTO
+    {
+        public string[] RolePermissionGUID { get; set; }
+        public string Process { get; set; }
+        public string Permission { get; set; }
+        public string Role { get; set; }
+    }
+    public class UserPermissionMenuItemDTO
+    {
+        public string MenuItemGUID { get; set; }
+        public string MenuItemName { get; set; }
+    }
+    public class UserPermissionDetailDTO
+    {
+        public int ProcessId { get; set; }
+        public string ProcessName { get; set; }
+        public string MenuItemGUID { get; set; }
+        public List<UserPermissionDetailUserRoleDTO> Role { get; set; }
+    }
+    public class UserPermissionDetailUserRoleDTO
+    {
+        public string RolePermissionGUID { get; set; }
+        public string UserRoleGUID { get; set; }
+        public string Role { get; set; }
+    }
+    public class WorkerRuleDTO
+    {
+        public int WorkerRuleId { get; set; }
+        public string Code { get; set; }
+        public string Worker { get; set; }
+        public string Summary { get; set; }
+        public int Score { get; set; }
+        public string ProcessName { get; set; }
+    }
+    public class WorkerRuleDetailDTO
+    {
+        public int WorkerRuleId { get; set; }
+        public string ProcessName { get; set; }
+        public string ProcessDisplayName { get; set; }
+        public string Code { get; set; }
+        public string Worker { get; set; }
+        public string WorkerType { get; set; }
+        public string Summary { get; set; }
+        public string Remark { get; set; }
+        public int Score { get; set; }
+        public List<WorkerRuleRuleListDTO> Rules { get; set; }
+    }
+    public class WorkerRuleRuleListDTO
+    {
+        public int WorkerRuleSettingId { get; set; }
+        public DateTime ModifiedOn { get; set; }
+        public string ModifiedBy { get; set;}
+        public string Summary { get; set; }
+        public int Score { get; set; }
+        public Nullable<DateTime> StartDate { get; set; }
+        public Nullable<DateTime> EndDate { get; set; }
+    }
+    public class WorkerRuleRuleDTO
+    {
+        public int TemplateID { get; set; }
+        public string Description { get; set; }
+        public int DefaultScore { get; set; }
+    }
+    public class WorkerRuleNatureDTO
+    {
+        public int NatureID { get; set; }
+        public string Description { get; set; }
+        public int DisplayOrder { get; set; }
+        public int Enabled { get; set; }
+        public DateTime ModifiedOn { get; set; }
+    }
+    public class WorkerRuleGradingDTO
+    {
+        public int Grade { get; set; }
+        public string Description { get; set; }
+    }
+    public class WorkerRulePriorityDTO
+    {
+        public int PriorityID { get; set; }
+        public string Description { get; set; }
+    }
+    public class WorkerRuleDepartmentDTO
+    {
+        public string DepartmentCode { get; set; }
+        public string Department { get; set; }
+    }
+    public class WorkerRuleCriteriaDTO
+    {
+        public string CriteriaGroup { get; set; }
+        public int CriteriaID { get; set; }
+        public string Criteria { get; set; }
     }
 }

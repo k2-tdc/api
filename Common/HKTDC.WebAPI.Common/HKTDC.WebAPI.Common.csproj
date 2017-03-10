@@ -142,7 +142,10 @@
     <Compile Include="Controllers\CommonController.cs" />
     <Compile Include="Controllers\EmailController.cs" />
     <Compile Include="Controllers\ProfileController.cs" />
+    <Compile Include="Controllers\UserPermissionController.cs" />
+    <Compile Include="Controllers\UserRoleController.cs" />
     <Compile Include="Controllers\Utility.cs" />
+    <Compile Include="Controllers\WorkerRuleController.cs" />
     <Compile Include="Controllers\WorkflowFacade.cs" />
     <Compile Include="DBContext\EntityContext.cs" />
     <Compile Include="Exceptions\ProcessNotFoundException.cs" />
@@ -158,6 +161,16 @@
     <Compile Include="Models\ProcessList.cs" />
     <Compile Include="Models\ProcessRequestFormAttachment.cs" />
     <Compile Include="Models\ProcessStepList.cs" />
+    <Compile Include="Models\ProcessWorkerRule.cs" />
+    <Compile Include="Models\ProcessWorkerRuleSetting.cs" />
+    <Compile Include="Models\SPAMenuGroup.cs" />
+    <Compile Include="Models\SPAMenuItem.cs" />
+    <Compile Include="Models\SPAMenuMaster.cs" />
+    <Compile Include="Models\SPAUserRole.cs" />
+    <Compile Include="Models\SPAUserRoleEntity.cs" />
+    <Compile Include="Models\SPAUserRoleMember.cs" />
+    <Compile Include="Models\SPAUserRoleMemberGroup.cs" />
+    <Compile Include="Models\SPAUserRoleProcess.cs" />
     <Compile Include="Models\VDepartment.cs" />
     <Compile Include="Models\vUser.cs" />
     <Compile Include="Models\WebModel.cs" />
@@ -166,6 +179,9 @@
     <Compile Include="Services\CommonService.cs" />
     <Compile Include="Services\EmailService.cs" />
     <Compile Include="Services\ProfileService.cs" />
+    <Compile Include="Services\UserPermissionService.cs" />
+    <Compile Include="Services\UserRoleService.cs" />
+    <Compile Include="Services\WorkerRuleService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />

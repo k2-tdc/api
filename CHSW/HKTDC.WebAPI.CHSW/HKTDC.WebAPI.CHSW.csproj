@@ -180,6 +180,7 @@
     <Compile Include="Models\CustomReportCredentials.cs" />
     <Compile Include="Models\DelegationList.cs" />
     <Compile Include="Models\ErrorLog.cs" />
+    <Compile Include="Models\MenuItem.cs" />
     <Compile Include="Models\ProcessActionList.cs" />
     <Compile Include="Models\ProcessList.cs" />
     <Compile Include="Models\ProcessLog.cs" />

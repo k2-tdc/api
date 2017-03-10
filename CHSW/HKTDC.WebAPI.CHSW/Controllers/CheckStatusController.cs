@@ -49,7 +49,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         {
             try
             {
-                return this.checkStatusService.GetForwardEmployee(applicant);
+                return this.checkStatusService.GetForwardEmployee(applicant, getCurrentUser(Request));
             }
             catch (Exception ex)
             {
@@ -71,18 +71,25 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         {
             try
             {
-                Tuple<byte[], string> res = this.generateExcel(refid, department, applicant, createdatestart, createdateend, completiondatestart, completiondateend, keyword, sort);
-
-                var result = new HttpResponseMessage(HttpStatusCode.OK);
-                Stream stream = new MemoryStream(res.Item1);
-                result.Content = new StreamContent(stream);
-                result.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
-                result.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                bool havePermission = this.reportService.checkPagePermission("USAGE REPORT", getCurrentUser(Request));
+                if (havePermission)
                 {
-                    FileName = res.Item2
-                };
+                    Tuple<byte[], string> res = this.generateExcel(refid, department, applicant, createdatestart, createdateend, completiondatestart, completiondateend, keyword, sort);
 
-                return result;
+                    var result = new HttpResponseMessage(HttpStatusCode.OK);
+                    Stream stream = new MemoryStream(res.Item1);
+                    result.Content = new StreamContent(stream);
+                    result.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+                    result.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                    {
+                        FileName = res.Item2
+                    };
+
+                    return result;
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -128,22 +135,22 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         //Get Details for Review
         [Route("workflow/applications/computer-app/{ReferID}")]
         [HttpGet]
-        public List<Review> GetRequestDetails(string ReferID, string UserId, string ProInstID)
+        public List<Review> GetRequestDetails(string ReferID, string ProInstID)
         {
             try
             {
-                if (compareUser(Request, UserId))
-                {
-                    return this.checkStatusService.GetRequestDetails(ReferID, UserId, ProInstID, "Review");
-                }
-                else
-                {
-                    throw new UnauthorizedAccessException();
-                }
+                //if (compareuser(request, userid))
+                //{
+                    return this.checkStatusService.GetRequestDetails(ReferID, getCurrentUser(Request), ProInstID, "Review");
+                //}
+                //else
+                //{
+                //    throw new UnauthorizedAccessException();
+                //}
             }
             catch (Exception ex)
             {
-                var err = this.checkStatusService.ErrorLog(ex, UserId);
+                var err = this.checkStatusService.ErrorLog(ex, getCurrentUser(Request));
                 throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }
@@ -223,6 +230,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             {
                 case "dept": returnValue = "a.ApplicantDeptName"; break;
                 case "applicant": returnValue = "a.ApplicantFullName"; break;
+                case "lastactiontime": returnValue = "a.ModifiedOn"; break;
                 default: break;
             }
             return returnValue + order;
