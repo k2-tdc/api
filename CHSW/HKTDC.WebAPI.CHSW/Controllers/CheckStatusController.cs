@@ -60,21 +60,21 @@ namespace HKTDC.WebAPI.CHSW.Controllers
 
         [Route("workflow/applications/computer-app/approval-history")]
         [HttpGet]
-        public List<ChkFrmStatus> getHistoryList(string userid, string employeeid, string applicant = null, [FromUri(Name = "approval-start-date")] string approvalStartDate = null, [FromUri(Name = "approval-end-date")] string approvalEndDate = null, string status = null, string refid = null, [FromUri(Name = "create-start-date")] string createStartDate = null, [FromUri(Name = "create-end-date")] string createEndDate = null, string keyword = null)
+        public List<ChkFrmStatus> getHistoryList(string userid, string applicant = null, [FromUri(Name = "approval-start-date")] string approvalStartDate = null, [FromUri(Name = "approval-end-date")] string approvalEndDate = null, string status = null, string refid = null, [FromUri(Name = "create-start-date")] string createStartDate = null, [FromUri(Name = "create-end-date")] string createEndDate = null, string keyword = null, string employeeid = null, [FromUri(Name = "applicant-employee-id")] string applicantEmpNo = null)
         {
-            return this.historyService.getApprovalList(userid, employeeid, applicant, approvalStartDate, approvalEndDate, status, refid, createStartDate, createEndDate, keyword);
+            return this.historyService.getApprovalList(userid, applicantEmpNo, applicant, approvalStartDate, approvalEndDate, status, refid, createStartDate, createEndDate, keyword);
         }
 
         [Route("workflow/applications/computer-app/usage-report")]
         [HttpGet]
-        public HttpResponseMessage exportExcel(string refid = null, string department = null, string applicant = null, [FromUri(Name = "create-date-start")] string createdatestart = null, [FromUri(Name = "create-date-end")] string createdateend = null, [FromUri(Name = "completion-date-start")] string completiondatestart = null, [FromUri(Name = "completion-date-end")] string completiondateend = null, string keyword = null, string sort = null)
+        public HttpResponseMessage exportExcel(string refid = null, string department = null, string applicant = null, [FromUri(Name = "create-date-start")] string createdatestart = null, [FromUri(Name = "create-date-end")] string createdateend = null, [FromUri(Name = "completion-date-start")] string completiondatestart = null, [FromUri(Name = "completion-date-end")] string completiondateend = null, string keyword = null, string sort = null, [FromUri(Name = "applicant-employee-id")] string applicantEmpNo = null)
         {
             try
             {
                 bool havePermission = this.reportService.checkPagePermission("USAGE REPORT", getCurrentUser(Request));
                 if (havePermission)
                 {
-                    Tuple<byte[], string> res = this.generateExcel(refid, department, applicant, createdatestart, createdateend, completiondatestart, completiondateend, keyword, sort);
+                    Tuple<byte[], string> res = this.generateExcel(refid, department, applicant, createdatestart, createdateend, completiondatestart, completiondateend, keyword, sort, applicantEmpNo);
 
                     var result = new HttpResponseMessage(HttpStatusCode.OK);
                     Stream stream = new MemoryStream(res.Item1);
@@ -101,7 +101,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         //Get Details for Check Status Based on the Search Options
         [Route("workflow/users/{UserId}/applications/computer-app")]
         [HttpGet]
-        public List<ChkFrmStatus> GetRequestList(string UserId, string EmployeeId, int offset = 0, int limit = 999999, string sort = null, string refid = null, string status = null, [FromUri(Name = "start-date")] string FDate = null, [FromUri(Name = "end-date")] string TDate = null, string applicant = null)
+        public List<ChkFrmStatus> GetRequestList(string UserId, int offset = 0, int limit = 999999, string sort = null, string refid = null, string status = null, [FromUri(Name = "start-date")] string FDate = null, [FromUri(Name = "end-date")] string TDate = null, string applicant = null, [FromUri(Name = "applicant-employee-id")] string applicantEmpNo = null, string EmployeeId = null)
         {
             try
             {
@@ -118,7 +118,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                         }
                         sqlSortValue = String.Join(",", tmpArr.ToArray());
                     }
-                    return this.checkStatusService.GetRequestList(refid, status, FDate, TDate, applicant, UserId, "CheckStatus", EmployeeId, offset, limit, sqlSortValue);
+                    return this.checkStatusService.GetRequestList(refid, status, FDate, TDate, applicant, UserId, "CheckStatus", applicantEmpNo, offset, limit, sqlSortValue);
                 }
                 else
                 {
@@ -155,7 +155,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
         }
 
-        protected Tuple<byte[], string> generateExcel(string RefId, string Dept, string Applicant, string CreateDateStart, string CreateDateEnd, string CompletionDateStart, string CompletionDateEnd, string Keyword, string sort)
+        protected Tuple<byte[], string> generateExcel(string RefId, string Dept, string Applicant, string CreateDateStart, string CreateDateEnd, string CompletionDateStart, string CompletionDateEnd, string Keyword, string sort, string applicantEmpyNo)
         {
             try
             {
@@ -181,6 +181,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                     reportViewer.ServerReport.SetParameters(new ReportParameter("CompletionDateStart", CompletionDateStart));
                     reportViewer.ServerReport.SetParameters(new ReportParameter("CompletionDateEnd", CompletionDateEnd));
                     reportViewer.ServerReport.SetParameters(new ReportParameter("Keyword", Keyword));
+                    reportViewer.ServerReport.SetParameters(new ReportParameter("ApplicantEmp", applicantEmpyNo));
 
                     if (!String.IsNullOrEmpty(sort))
                     {

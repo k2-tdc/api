@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Web;
 using System.Web.Http;
 
@@ -284,6 +285,49 @@ namespace HKTDC.WebAPI.Common.Controllers
                 } else
                 {
                     throw new UnauthorizedAccessException();
+                }
+            }
+            catch (Exception ex)
+            {
+                var err = this.commonService.ErrorLog(ex, getCurrentUser(Request));
+                throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
+            }
+        }
+        private string GenerateJsonData(string UserID, string ProcessName, string Unread, string Push)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("[{");
+            sb.AppendFormat("\"user\":\"{0}\"", UserID);
+            sb.Append(",");
+            sb.AppendFormat("\"type\":\"{0}\"", ProcessName);
+            sb.Append(",");
+            sb.AppendFormat("\"unread\":{0}", Unread);
+            sb.Append(",");
+            sb.AppendFormat("\"push\":{0}", Push);
+            sb.Append("}]");
+
+            return sb.ToString();
+        }
+        [Route("workflow/push-notification-work-list-count")]
+        [HttpGet]
+        public HttpResponseMessage GetWorklistCountForPushNotification(string UserId, string ProcessName, string Push)
+        {
+            try
+            {
+                Tuple<bool, int> response = this.commonService.GetWorklistCountByProcess(UserId, ProcessName);
+                if (response.Item1)
+                {
+                    int pendingworkitemCount = response.Item2;
+                    string endpointUrl = System.Configuration.ConfigurationManager.AppSettings.Get("PushNotificationEndpoint").ToString();
+                    string postData = GenerateJsonData(UserId, ProcessName, pendingworkitemCount.ToString(), Push);
+                    var client = new RESTClientService(endpointUrl, HttpVerb.POST, postData);
+                    string strResult = client.MakeRequest();
+                    return new HttpResponseMessage { Content = new StringContent(strResult, System.Text.Encoding.UTF8, "application/json") };
+                }
+                else
+                {
+                    //return Request.CreateResponse(HttpStatusCode.InternalServerError, "Fail");
+                    return new HttpResponseMessage { Content = new StringContent("", System.Text.Encoding.UTF8, "application/json") };
                 }
             }
             catch (Exception ex)

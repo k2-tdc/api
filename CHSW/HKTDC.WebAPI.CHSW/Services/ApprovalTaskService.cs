@@ -14,7 +14,7 @@ namespace HKTDC.WebAPI.CHSW.Services
     {
         private EntityContext Db = new EntityContext();
 
-        public List<ChkFrmStatus> GetApproveList(string ReferID, string CStat, string FDate, string TDate, string UserId, string SUser, string ProsIncId, int offset = 0, int limit = 999999, string sort = null)
+        public List<ChkFrmStatus> GetApproveList(string ReferID, string CStat, string FDate, string TDate, string UserId, string SUser, string ProsIncId, int offset = 0, int limit = 999999, string sort = null, string applicant = null, string applicantEmpNo = null)
         {
             string proinsid = "";
             WorkflowFacade workfacade = new WorkflowFacade();
@@ -34,11 +34,11 @@ namespace HKTDC.WebAPI.CHSW.Services
                 worklist = new List<WorklistItem>();
                 List<WorklistItem> sharedworklist = workfacade.GetWorklistItemsByProcess(SUser);
                 var sharePermit = (from a in Db.DelegationLists
-                                   join b in Db.ProcessStepLists on a.StepID equals b.StepID into ps
+                                   join b in Db.DelegationProcess on a.ActivityGroupID equals b.GroupID into ps
                                    from b in ps.DefaultIfEmpty()
                                    where a.DelegationType == "Sharing"
-                                        && a.FromUser_USER_ID == SUser
-                                        && a.ToUser_USER_ID == UserId
+                                        && a.FromUser_UserID == SUser
+                                        && a.ToUser_UserID == UserId
                                    select b.K2StepName
                                    ).ToList();
                 worklist.AddRange(sharedworklist.Where(P => approvalStatus.Contains(P.ActivityName) && sharePermit.Contains(P.ActivityName)).ToList());
@@ -62,7 +62,10 @@ namespace HKTDC.WebAPI.CHSW.Services
                         new SqlParameter("ProcIncId",DBNull.Value),
                         new SqlParameter("offset", offset),
                         new SqlParameter("limit", limit),
-                        new SqlParameter("sort", sort)};
+                        new SqlParameter("sort", sort),
+                        new SqlParameter("applicant", DBNull.Value),
+                        new SqlParameter("applicantEmpNo", DBNull.Value)
+                    };
 
                     if (!string.IsNullOrEmpty(ReferID))
                         sqlp[0].Value = ReferID;
@@ -85,6 +88,14 @@ namespace HKTDC.WebAPI.CHSW.Services
                         sqlp[4].Value = SUser;
                     if (!string.IsNullOrEmpty(UserId))
                         sqlp[5].Value = UserId;
+                    if (!string.IsNullOrEmpty(applicant))
+                    {
+                        sqlp[11].Value = applicant;
+                    }
+                    if (!string.IsNullOrEmpty(applicantEmpNo))
+                    {
+                        sqlp[12].Value = applicantEmpNo;
+                    }
 
                     if (string.IsNullOrEmpty(ProsIncId))
                     {
@@ -96,9 +107,10 @@ namespace HKTDC.WebAPI.CHSW.Services
                         sqlp[7].Value = ProsIncId;
                     }
 
-                    StatusList = Db.Database.SqlQuery<CheckStatus>("exec [K2_WorkList] @ReferID,@CStatus,@FDate,@TDate,@SUser,@UserId,@TOwner,@ProcIncId,@offset,@limit,@sort", sqlp).ToList();
+                    StatusList = Db.Database.SqlQuery<CheckStatus>("exec [K2_WorkList] @ReferID,@CStatus,@FDate,@TDate,@SUser,@UserId,@TOwner,@ProcIncId,@offset,@limit,@sort,@applicant,@applicantEmpNo", sqlp).ToList();
 
-                    foreach (var request in StatusList.DistinctBy(P => P.FormID))
+                    //foreach (var request in StatusList.DistinctBy(P => P.FormID))
+                    foreach (var request in StatusList.DistinctBy(P => P.ProcInstID))
                     {
                         ChkFrmStatus status = new ChkFrmStatus();
                         //var request = StatusList.Where(P => P.FormID == FormID).FirstOrDefault();
@@ -107,6 +119,7 @@ namespace HKTDC.WebAPI.CHSW.Services
                         status.ReferenceID = request.ReferenceID;
                         status.FormStatus = request.FormStatus;
                         status.SubmittedOn = request.SubmittedOn;
+                        status.ApplicantUserId = request.ApplicantUserID;
                         status.ApplicantEMP = request.ApplicantEMP;
                         status.ApplicantFNAME = request.ApplicantFNAME;
                         status.ApproverEmp = request.ApproverEMP;
@@ -194,7 +207,7 @@ namespace HKTDC.WebAPI.CHSW.Services
             return FormRequests;
         }
 
-        public List<Review> GetApproveDetails(string UserId, string ProsIncId, string SN, string RefID)
+        public List<Review> GetApproveDetails(string UserId, string ProsIncId, string SN)
         {
             List<Review> WorkListItem = new List<Review>();
             try
@@ -232,16 +245,17 @@ namespace HKTDC.WebAPI.CHSW.Services
                                             ButtonName = b.ActionButtonName
                                         }).ToList();
 
-                        /*item.actions = (from a in Db.ProcessActionLists
-                                        where items.Contains(a.K2ActionName)
-                                        select new ProcessActionListDTO
-                                        {
-                                            Action = a.K2ActionName,
-                                            ButtonName = a.ActionButtonName
-                                        }).Distinct().ToList();*/
+                        // Approver return to Applicant, Prepare = Applicant, no return to preparer button
+                        if (item.FormStatus == "Return")
+                        {
+                            if (item.PreparerUserID == item.ApplicantUserID)
+                            {
+                                var returnToPreparerBtn = item.actions.Where(p => p.Action == "Rework").FirstOrDefault();
+                                item.actions.Remove(returnToPreparerBtn);
+                            }
+                        }
 
                         WorkListItem.Add(item);
-
                     }
                 }
                 else
@@ -254,7 +268,41 @@ namespace HKTDC.WebAPI.CHSW.Services
                     record = Db.Database.SqlQuery<CheckDelegationUser>("exec [K2_checkSharedUser] @ProcInstId,@SUser", sqlp).ToList();
                     if (record.Count() > 0)
                     {
-                        var item = GetRequestDetails(RefID, UserId, ProsIncId, "Task").FirstOrDefault();
+                        string ReferID = (from a in Db.RequestFormMasters
+                                          join b in Db.RequestFormTaskActioners on a.FormID equals b.FormID into ps
+                                          from b in ps.DefaultIfEmpty()
+                                          where (a.ProcInstID == ProsIncId || b.ProcInstID.ToString() == ProsIncId)
+                                          select a.ReferenceID).FirstOrDefault().ToString();
+
+                        var item = GetRequestDetails(ReferID, UserId, ProsIncId, "Task").FirstOrDefault();
+                        string permission = "";
+                        foreach(var r in record)
+                        {
+                            if (!string.IsNullOrEmpty(r.Permission))
+                            {
+                                if (r.Permission == "1")
+                                    permission = "1";
+                                else
+                                {
+                                    if (r.Permission != "1")
+                                    {
+                                        permission = r.Permission;
+                                    }
+                                }
+                            }
+                        }
+                        if(permission == "2")
+                        {
+                            item.Attachments = null;
+                            item.RequestList = null;
+                            item.Justification = null;
+                            item.EDeliveryDate = null;
+                            item.DurationOfUse = null;
+                            item.EstimatedCost = null;
+                            item.BudgetProvided = null;
+                            item.RequestCC = null;
+                            item.Remark = null;
+                        }
                         WorkListItem.Add(item);
                     }
                     else

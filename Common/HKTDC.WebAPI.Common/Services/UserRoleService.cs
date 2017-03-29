@@ -87,17 +87,20 @@ namespace HKTDC.WebAPI.Common.Services
             {
                 if (checkAdminPermission(UserId, "ADMIN"))
                 {
-                    var userRole = Db.SPAUserRole.Where(p => p.SPAUserRoleGUID == RoleId).FirstOrDefault();
-                    if(userRole != null)
-                    {
-                        Db.SPAUserRole.Remove(userRole);
-                        Db.SaveChanges();
-                        success = true;
-                    } else
-                    {
-                        success = false;
-                        msg = "User Role not found.";
-                    }
+                    //var userRole = Db.SPAUserRole.Where(p => p.SPAUserRoleGUID == RoleId).FirstOrDefault();
+                    //if(userRole != null)
+                    //{
+                    //    Db.SPAUserRole.Remove(userRole);
+                    //    Db.SaveChanges();
+                    //    success = true;
+                    //} else
+                    //{
+                    //    success = false;
+                    //    msg = "User Role not found.";
+                    //}
+                    SqlParameter[] sqlp = { new SqlParameter("RoleId", RoleId) };
+                    Db.Database.ExecuteSqlCommand("exec [K2_DeleteUserRole] @RoleId", sqlp);
+                    success = true;
                 }
                 else
                 {

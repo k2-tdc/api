@@ -16,11 +16,11 @@ namespace HKTDC.WebAPI.CHSW.Services
         {
             List<ApproverHistory> rawHistory = new List<ApproverHistory>();
             List<ChkFrmStatus> historyList = new List<ChkFrmStatus>();
-            string queryParameter = "@userid,@employeeid,@applicant,@approvalStart,@approvalEnd,@status,@refid,@createStart,@createEnd,@keyword";
+            string queryParameter = "@userid,@applicantEmpNo,@applicant,@approvalStart,@approvalEnd,@status,@refid,@createStart,@createEnd,@keyword";
             SqlParameter[] sqlp =
             {
                 new SqlParameter("userid", userid),
-                new SqlParameter("employeeid", employeeid),
+                new SqlParameter("applicantEmpNo", DBNull.Value),
                 new SqlParameter("applicant", DBNull.Value),
                 new SqlParameter("approvalStart", DBNull.Value),
                 new SqlParameter("approvalEnd", DBNull.Value),
@@ -30,6 +30,10 @@ namespace HKTDC.WebAPI.CHSW.Services
                 new SqlParameter("createEnd", DBNull.Value),
                 new SqlParameter("keyword", DBNull.Value)
             };
+            if (!string.IsNullOrEmpty(employeeid))
+            {
+                sqlp[1].Value = employeeid;
+            }
             if (!String.IsNullOrEmpty(applicant))
             {
                 sqlp[2].Value = applicant;

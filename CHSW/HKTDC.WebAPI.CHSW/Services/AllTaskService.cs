@@ -27,7 +27,7 @@ namespace HKTDC.WebAPI.CHSW.Services
         ///  SP  : K2_WorkList  
         /// <returns></returns> 
         /// <summary>        
-        public List<ChkFrmStatus> GetWorklist(string ReferID, string CStat, string FDate, string TDate, string UserId, string SUser, string ProsIncId, int offset = 0, int limit = 999999, string sort = null)
+        public List<ChkFrmStatus> GetWorklist(string ReferID, string CStat, string FDate, string TDate, string UserId, string SUser, string ProsIncId, int offset = 0, int limit = 999999, string sort = null, string applicant = null, string applicantEmpNo = null)
         {
             string proinsid = "";
             WorkflowFacade workfacade = new WorkflowFacade();
@@ -43,11 +43,11 @@ namespace HKTDC.WebAPI.CHSW.Services
                 worklist = new List<WorklistItem>();
                 sharedworklist = workfacade.GetWorklistItemsByProcess(SUser);
                 var sharePermit = (from a in Db.DelegationLists
-                                   join b in Db.ProcessStepLists on a.StepID equals b.StepID into ps
+                                   join b in Db.DelegationProcess on a.ActivityGroupID equals b.GroupID into ps
                                    from b in ps.DefaultIfEmpty()
                                    where a.DelegationType == "Sharing"
-                                        && a.FromUser_USER_ID == SUser
-                                        && a.ToUser_USER_ID == UserId
+                                        && a.FromUser_UserID == SUser
+                                        && a.ToUser_UserID == UserId
                                    select b.K2StepName
                                    ).ToList();
                 foreach (var i in sharedworklist)
@@ -77,7 +77,10 @@ namespace HKTDC.WebAPI.CHSW.Services
                         new SqlParameter("ProcIncId",DBNull.Value),
                         new SqlParameter("offset", offset),
                         new SqlParameter("limit", limit),
-                        new SqlParameter("sort", sort)};
+                        new SqlParameter("sort", sort),
+                        new SqlParameter("applicant", DBNull.Value),
+                        new SqlParameter("applicantEmpNo", DBNull.Value)
+                    };
 
                     if (!string.IsNullOrEmpty(ReferID))
                         sqlp[0].Value = ReferID;
@@ -91,6 +94,13 @@ namespace HKTDC.WebAPI.CHSW.Services
                         sqlp[4].Value = SUser;
                     if (!string.IsNullOrEmpty(UserId))
                         sqlp[5].Value = UserId;
+                    if (!string.IsNullOrEmpty(applicant)) {
+                        sqlp[11].Value = applicant;
+                    }
+                    if (!string.IsNullOrEmpty(applicantEmpNo))
+                    {
+                        sqlp[12].Value = applicantEmpNo;
+                    }
 
                     if (string.IsNullOrEmpty(ProsIncId))
                     {
@@ -102,7 +112,7 @@ namespace HKTDC.WebAPI.CHSW.Services
                         sqlp[7].Value = ProsIncId;
                     }
 
-                    StatusList = Db.Database.SqlQuery<CheckStatus>("exec [K2_WorkList] @ReferID,@CStatus,@FDate,@TDate,@SUser,@UserId,@TOwner,@ProcIncId,@offset,@limit,@sort", sqlp).ToList();
+                    StatusList = Db.Database.SqlQuery<CheckStatus>("exec [K2_WorkList] @ReferID,@CStatus,@FDate,@TDate,@SUser,@UserId,@TOwner,@ProcIncId,@offset,@limit,@sort,@applicant,@applicantEmpNo", sqlp).ToList();
 
                     //foreach (int FormID in StatusList.Select(P => P.FormID).Distinct())
                     foreach (var request in StatusList.DistinctBy(P => P.ProcInstID))
@@ -121,6 +131,7 @@ namespace HKTDC.WebAPI.CHSW.Services
                                 status.ReferenceID = request.ReferenceID;
                                 status.FormStatus = request.FormStatus;
                                 status.SubmittedOn = request.SubmittedOn;
+                                status.ApplicantUserId = request.ApplicantUserID;
                                 status.ApplicantEMP = request.ApplicantEMP;
                                 status.ApplicantFNAME = request.ApplicantFNAME;
                                 status.ApproverEmp = request.ApproverEMP;
@@ -242,14 +253,7 @@ namespace HKTDC.WebAPI.CHSW.Services
                                             Action = b.K2ActionName,
                                             ButtonName = b.ActionButtonName
                                         }).ToList();
-                        /*item.actions = (from a in Db.ProcessActionLists where items.Contains(a.K2ActionName)
-                                        select new ProcessActionListDTO
-                                        {
-                                            Action = a.K2ActionName,
-                                            ButtonName = a.ActionButtonName
-                                        }).ToList();*/
                         WorkListItem.Add(item);
-
                     }
                 }
                 else

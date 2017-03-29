@@ -334,6 +334,7 @@ namespace HKTDC.WebAPI.Common.Models
     public class WorkerRuleDetailDTO
     {
         public int WorkerRuleId { get; set; }
+        public int ProcessId { get; set; }
         public string ProcessName { get; set; }
         public string ProcessDisplayName { get; set; }
         public string Code { get; set; }
@@ -375,7 +376,7 @@ namespace HKTDC.WebAPI.Common.Models
     }
     public class WorkerRulePriorityDTO
     {
-        public int PriorityID { get; set; }
+        public string PriorityID { get; set; }
         public string Description { get; set; }
     }
     public class WorkerRuleDepartmentDTO
@@ -388,5 +389,105 @@ namespace HKTDC.WebAPI.Common.Models
         public string CriteriaGroup { get; set; }
         public int CriteriaID { get; set; }
         public string Criteria { get; set; }
+    }
+    public class WorkerRuleOrgChartDTO
+    {
+        public int LevelID { get; set; }
+        public int LevelNo { get; set; }
+        public string Description { get; set; }
+        public int DisplayOrder { get; set; }
+        public int Enabled { get; set; }
+        public DateTime ModifiedOn { get; set; }
+    }
+    public class WorkerRuleUserGroupDTO
+    {
+        public int GroupID { get; set; }
+        public string Description { get; set; }
+        public int Enabled { get; set; }
+        public DateTime ModifiedOn { get; set; }
+    }
+    public class WorkerRuleTeamDTO
+    {
+        public string Code { get; set; }
+        public string Description { get; set; }
+    }
+    public class WorkerRuleTeamFilterDTO
+    {
+        public int FilterID { get; set; }
+        public string Description { get; set; }
+        public int DisplayOrder { get; set; }
+        public int Enabled { get; set; }
+        public DateTime ModifiedOn { get; set; }
+    }
+    public class WorkerRuleRuleDetailDTO
+    {
+        public int WorkerRuleId { get; set; }
+        public int WorkerSettingId { get; set; }
+        public int Rule { get; set; }
+        public int Nature { get; set; }
+        public int Score { get; set; }
+        public string UserId { get; set; }
+        public string UserId1 { get; set; }
+        public string UserId2 { get; set; }
+        public int? LevelNo { get; set; }
+        public int? GroupID { get; set; }
+        public int? GroupID1 { get; set; }
+        public int? Grade1 { get; set; }
+        public int? Grade2 { get; set; }
+        public string Team { get; set; }
+        public int? TeamFilter { get; set; }
+        public int Priority { get; set; }
+        public int? Grade3 { get; set; }
+        public int? Grade4 { get; set; }
+        public string Department { get; set; }
+        public Nullable<DateTime> DateFrom { get; set; }
+        public Nullable<DateTime> DateTo { get; set; }
+        public string OtherCriteria { get; set; }
+        public int[] Criteria { get; set; }
+        public string Remark { get; set; }
+        public List<FormAttachment> Reference { get; set; }
+    }
+    public class FormAttachment
+    {
+        public System.Guid AttachmentGUID { get; set; }
+        public string FileName { get; set; }
+        public int? FormID { get; set; }
+        public string UploadedByDeptName { get; set; }
+        public string UploadedByEmployeeID { get; set; }
+        public string UploadedByFullName { get; set; }
+        public string UploadedByUserID { get; set; }
+        public DateTime? UploadedDate { get; set; }
+    }
+    public class DelegationDTO
+    {
+        public int DelegationID { get; set; }
+        public string User { get; set; }
+        public string Workflow { get; set; }
+        public string Task { get; set; }
+        public string Department { get; set; }
+        public string DelegateTo { get; set; }
+        public string Action { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+    }
+    public class DelegationActionDTO
+    {
+        public string Value { get; set; }
+        public string Key { get; set; }
+    }
+    public class DelegationDetailDTO
+    {
+        public int DelegationID { get; set; }
+        public string UserID { get; set; }
+        public int ProcessID { get; set; }
+        public int? TaskID { get; set; }
+        public string Dept { get; set; }
+        public string DelegateUserID { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string Action { get; set; }
+        public string Remark { get; set; }
+        public string Permission { get; set; }
+        public string ProcessName { get; set; }
     }
 }

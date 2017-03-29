@@ -316,6 +316,7 @@ namespace HKTDC.WebAPI.CHSW.Models
         public string FormStatus { get; set; }
         public string FromUser { get; set; }
         public string ToUser { get; set; }
+        public string Permission { get; set; }
     }
 
     public class ReqeustFormRefId

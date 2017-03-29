@@ -95,22 +95,30 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/email-templates/{TemplateId:int}")]
-        [HttpDelete]
-        public HttpResponseMessage DeleteEmailTemplate(int TemplateId)
+        [Route("workflow/email-templates/delete-templates")]
+        [HttpPost]
+        public HttpResponseMessage DeleteEmailTemplate()
         {
             try
             {
-                Tuple<bool,string> response = this.emailService.DeleteEmailTemplate(getCurrentUser(Request), TemplateId);
-                if (response.Item1)
+                var s = HttpContext.Current.Request.Form.GetValues("model");
+
+                string json = s[0];
+
+                if (string.IsNullOrEmpty(json))
+                    throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
+                dynamic stuff = JsonConvert.DeserializeObject(json);
+                foreach (dynamic item in stuff.data)
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
+                    int TemplateId = item.TemplateId;
+                    Tuple<bool, string> response = this.emailService.DeleteEmailTemplate(getCurrentUser(Request), TemplateId);
+                    if(!response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
                 }
-                else
-                {
-                    //return Request.CreateResponse(HttpStatusCode.InternalServerError, "Fail");
-                    return new HttpResponseMessage { Content = new StringContent("{\"success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
+                
+                return new HttpResponseMessage { Content = new StringContent("{\"success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
             }
             catch (Exception ex)
             {

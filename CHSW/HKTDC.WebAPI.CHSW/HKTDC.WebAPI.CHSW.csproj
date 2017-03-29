@@ -179,6 +179,7 @@
     <Compile Include="Models\CommonSettings.cs" />
     <Compile Include="Models\CustomReportCredentials.cs" />
     <Compile Include="Models\DelegationList.cs" />
+    <Compile Include="Models\DelegationProcess.cs" />
     <Compile Include="Models\ErrorLog.cs" />
     <Compile Include="Models\MenuItem.cs" />
     <Compile Include="Models\ProcessActionList.cs" />

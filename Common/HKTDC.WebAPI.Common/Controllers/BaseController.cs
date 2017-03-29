@@ -34,5 +34,11 @@ namespace HKTDC.WebAPI.Common.Controllers
 
             return ret;
         }
+
+        public int? TryParseNullable(string val)
+        {
+            int outValue;
+            return int.TryParse(val, out outValue) ? (int?)outValue : null;
+        }
     }
 }

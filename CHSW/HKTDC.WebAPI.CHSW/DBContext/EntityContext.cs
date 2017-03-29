@@ -40,6 +40,7 @@ namespace HKTDC.WebAPI.CHSW.DBContext
         public virtual DbSet<CommonSettings> CommonSettings { get; set; }
         public virtual DbSet<VDepartment> vDepartment { get; set; }
         public virtual DbSet<MenuItem> MenuItem { get; set; }
+        public virtual DbSet<DelegationProcess> DelegationProcess { get; set; }
     }
     
 }

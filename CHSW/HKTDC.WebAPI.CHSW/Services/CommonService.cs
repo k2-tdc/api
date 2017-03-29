@@ -25,7 +25,7 @@ namespace HKTDC.WebAPI.CHSW.Services
         ///  SP  : K2_CheckStatus  
         /// <returns></returns> 
         /// <summary>        
-        public List<ChkFrmStatus> GetRequestList(string ReferID, string CStat, string FDate, string TDate, string Appl, string UserId, string Type, string EmployeeId, int offset = 0, int limit = 999999, string sort = null)
+        public List<ChkFrmStatus> GetRequestList(string ReferID, string CStat, string FDate, string TDate, string Appl, string UserId, string Type, string ApplicantEmployeeId, int offset = 0, int limit = 999999, string sort = null)
         {
             List<CheckStatus> StatusList = new List<CheckStatus>();
             List<ChkFrmStatus> FormRequests = new List<ChkFrmStatus>();
@@ -40,10 +40,10 @@ namespace HKTDC.WebAPI.CHSW.Services
                     new SqlParameter("Applicant", DBNull.Value ),
                      new SqlParameter("UserId",UserId),
                      new SqlParameter("Type",Type),
-                    new SqlParameter("EmployeeId",EmployeeId),
                     new SqlParameter("offset", offset),
                     new SqlParameter("limit", limit),
-                    new SqlParameter("sort", sort)};
+                    new SqlParameter("sort", sort),
+                    new SqlParameter("ApplicantEmployeeId",DBNull.Value) };
                 if (!string.IsNullOrEmpty(ReferID))
                     sqlp[0].Value = ReferID;
                 if (!string.IsNullOrEmpty(CStat))
@@ -54,7 +54,11 @@ namespace HKTDC.WebAPI.CHSW.Services
                     sqlp[3].Value = TDate;
                 if (!string.IsNullOrEmpty(Appl))
                     sqlp[4].Value = Appl;
-                StatusList = Db.Database.SqlQuery<CheckStatus>("exec [K2_CheckStatus_new] @ReferID,@CStatus,@FDate,@TDate,@Applicant,@UserId,@Type,@EmployeeId,@offset,@limit,@sort", sqlp).ToList();
+                if(!string.IsNullOrEmpty(ApplicantEmployeeId))
+                {
+                    sqlp[10].Value = ApplicantEmployeeId;
+                }
+                StatusList = Db.Database.SqlQuery<CheckStatus>("exec [K2_CheckStatus_new] @ReferID,@CStatus,@FDate,@TDate,@Applicant,@UserId,@Type,@offset,@limit,@sort,@ApplicantEmployeeId", sqlp).ToList();
 
                 foreach (var request in StatusList.DistinctBy(p => new { p.ProcInstID, p.FormID }))
                 {

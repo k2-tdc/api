@@ -21,7 +21,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         //Get Details for WorkList Based on the Search Options
         [Route("workflow/users/{UserId}/work-list/computer-app")]
         [HttpGet]
-        public List<ChkFrmStatus> GetWorklist(string UserId, string refid = null, string status = null, [FromUri(Name = "start-date")] string FDate = null, [FromUri(Name = "end-date")] string TDate = null, string SUser = null, string ProsIncId = null, int offset = 0, int limit = 999999, string sort = null)
+        public List<ChkFrmStatus> GetWorklist(string UserId, string refid = null, string status = null, [FromUri(Name = "start-date")] string FDate = null, [FromUri(Name = "end-date")] string TDate = null, string SUser = null, string ProsIncId = null, int offset = 0, int limit = 999999, string sort = null, [FromUri(Name = "applicant-employee-id")] string applicantEmpNo = null, string applicant = null)
         {
             try
             {
@@ -38,7 +38,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                         }
                         sqlSortValue = String.Join(",", tmpArr.ToArray());
                     }
-                    return this.taskService.GetWorklist(refid, status, FDate, TDate, UserId, SUser, ProsIncId, offset, limit, sqlSortValue);
+                    return this.taskService.GetWorklist(refid, status, FDate, TDate, UserId, SUser, ProsIncId, offset, limit, sqlSortValue, applicant, applicantEmpNo);
                 }
                 else
                 {

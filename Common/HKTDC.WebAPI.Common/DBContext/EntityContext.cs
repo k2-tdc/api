@@ -29,5 +29,7 @@ namespace HKTDC.WebAPI.Common.DBContext
         public virtual DbSet<SPAMenuMaster> SPAMenuMaster { get; set; }
         public virtual DbSet<ProcessWorkerRule> ProcessWorkerRule { get; set; }
         public virtual DbSet<ProcessWorkerRuleSetting> ProcessWorkerRuleSetting { get; set; }
+        public virtual DbSet<DelegationList> DelegationList { get; set; }
+        public virtual DbSet<AppSetting> AppSetting { get; set; }
     }
 }

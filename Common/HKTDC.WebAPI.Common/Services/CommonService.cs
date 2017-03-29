@@ -40,7 +40,10 @@ namespace HKTDC.WebAPI.Common.Services
                 }
 
                 MList = Db.Database.SqlQuery<MenuList>("exec [K2_GetMenu] @ProcessName,@EmployeeId,@Page", sqlp).ToList();
-
+                WorkflowFacade workfacade = new WorkflowFacade();
+                string processName = ConfigurationManager.AppSettings.Get("CHSWProcessName").ToString();
+                workfacade.setWFProcess(processName);
+                List<WorklistItem> worklist = null;
                 foreach (var FirstlevelMenu in MList.DistinctBy(P => P.MMenu))
                 {
                     if (!string.IsNullOrEmpty(FirstlevelMenu.MMenu))
@@ -90,10 +93,54 @@ namespace HKTDC.WebAPI.Common.Services
                                         SSubMenu ssubmenu = new SSubMenu();
                                         ssubmenu.Name = ThirdLevelMenu;
                                         ssubmenulist.Add(ssubmenu);
+                                        if (string.IsNullOrEmpty(page) && processName == "CHSW")
+                                        {
+                                            if (Utility.Equals(ssubmenu.Name, "ALL TASKS"))
+                                            {
+                                                if (worklist == null)
+                                                {
+                                                    worklist = workfacade.GetWorklistItemsByProcess(UserId);
+                                                }
+                                                string proinsid = String.Join(",", worklist.Select(P => P.ProcInstID)).TrimEnd(',');
+                                                SqlParameter[] sqlPar = {
+                                                new SqlParameter("Process", "CHSW"),
+                                                new SqlParameter("ProcIntId", DBNull.Value)
+                                            };
+                                                if (!string.IsNullOrEmpty(proinsid))
+                                                {
+                                                    sqlPar[1].Value = proinsid;
+                                                }
+                                                int count = Db.Database.SqlQuery<int>("exec [K2_GetMenuTaskCount] @Process,@ProcIntId", sqlPar).FirstOrDefault();
+                                                ssubmenu.Scount = count.ToString();
+                                            }
+                                            if (Utility.Equals(ssubmenu.Name, "APPROVAL TASKS"))
+                                            {
+                                                if (worklist == null)
+                                                {
+                                                    worklist = workfacade.GetWorklistItemsByProcess(UserId);
+                                                    //worklist = workfacade.GeWorklistItemsByProcessAction(UserId, "Approval");
+                                                    //worklist.AddRange(workfacade.GeWorklistItemsByProcessAction(UserId, "ITSApproval"));
+                                                }
+                                                string[] approvalStatus = { "Approval", "ITSApproval" };
+                                                //ssubmenu.Scount = worklist.Where(P => approvalStatus.Contains(P.ActivityName)).Count().ToString();
+
+                                                string proinsid = String.Join(",", worklist.Where(P => approvalStatus.Contains(P.ActivityName)).Select(p => p.ProcInstID)).TrimEnd(',');
+                                                SqlParameter[] sqlPar = {
+                                                new SqlParameter("Process", "CHSW"),
+                                                new SqlParameter("ProcIntId", DBNull.Value)
+                                            };
+                                                if (!string.IsNullOrEmpty(proinsid))
+                                                {
+                                                    sqlPar[1].Value = proinsid;
+                                                }
+                                                int count = Db.Database.SqlQuery<int>("exec [K2_GetMenuTaskCount] @Process,@ProcIntId", sqlPar).FirstOrDefault();
+                                                ssubmenu.Scount = count.ToString();
+                                            }
+                                        }
                                         if ((MList.Where(P => P.MMenu == FirstlevelMenu.MMenu && P.SubMenu == SecondLevelMenu && P.SSubMenu == ThirdLevelMenu).Select(P => P.DOrder).Distinct().FirstOrDefault().Length) == 3)
                                         {
                                             Link3 = MList.Where(P => P.MMenu == FirstlevelMenu.MMenu && P.SubMenu == SecondLevelMenu && P.SSubMenu == ThirdLevelMenu).Select(P => P.Menulink).Distinct().FirstOrDefault();
-                                            ssubmenu.Scount = MList.Where(P => P.MMenu == FirstlevelMenu.MMenu && P.SubMenu == SecondLevelMenu && P.SSubMenu == ThirdLevelMenu).Select(P => P.Scount).Distinct().FirstOrDefault();
+                                            //ssubmenu.Scount = MList.Where(P => P.MMenu == FirstlevelMenu.MMenu && P.SubMenu == SecondLevelMenu && P.SSubMenu == ThirdLevelMenu).Select(P => P.Scount).Distinct().FirstOrDefault();
                                             if (!string.IsNullOrEmpty(Link3))
                                             {
                                                 ssubmenu.Mlink = Link3;  //If the 3rd Level link value is Not Null
@@ -210,7 +257,7 @@ namespace HKTDC.WebAPI.Common.Services
 
         public List<UserDTO> getAllUser(string UserId)
         {
-            return Db.vUser.Where(p => p.UserID != UserId).Select(p => new UserDTO
+            return Db.vUser.Select(p => new UserDTO
             {
                 UserID = p.UserID,
                 EmployeeID = p.EmployeeID,
@@ -750,6 +797,38 @@ namespace HKTDC.WebAPI.Common.Services
                 }
             }
             return FormRequests;
+        }
+        public Tuple<bool, int> GetWorklistCountByProcess(string UserId, string process)
+        {
+            int intReturn = 0;
+            bool blReturn = false;
+            string[] availableProcess = ConfigurationManager.AppSettings.Get("AvailableProcess").ToString().Split(';');
+            WorkflowFacade workfacade = new WorkflowFacade();
+            List<WorklistItem> worklist = new List<WorklistItem>();
+            try
+            {
+                process = process.ToUpper();
+                if (availableProcess.Contains(process))
+                {
+                    string processName = ConfigurationManager.AppSettings.Get(process + "ProcessName").ToString();
+                    workfacade.setWFProcess(processName);
+                    worklist = workfacade.GetWorklistItemsByProcess(UserId);
+                    intReturn = worklist.Count();
+                    blReturn = true;
+                }
+                else
+                {
+                    intReturn = 0;
+                    blReturn = false;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return Tuple.Create(blReturn, intReturn);
         }
 
         public Tuple<bool, string> GetWorklistCount(string UserId, string process = null)

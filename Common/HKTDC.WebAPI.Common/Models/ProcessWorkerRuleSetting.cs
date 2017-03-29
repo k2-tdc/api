@@ -16,7 +16,7 @@ namespace HKTDC.WebAPI.Common.Models
         public int Template { get; set; }
         public int Score { get; set; }
         public string Nature { get; set; }
-        public int isInclude { get; set; }
+        public int? isInclude { get; set; }
         public int isDefault { get; set; }
         public string OwnerUserID { get; set; }
         public string OwnerEmployeeID { get; set; }
@@ -24,19 +24,19 @@ namespace HKTDC.WebAPI.Common.Models
         public string UserID { get; set; }
         public string UserEmployeeID { get; set; }
         public string UserFullName { get; set; }
-        public int UserMinGradeLevel { get; set; }
-        public int UserMaxGradeLevel { get; set; }
-        public int UserGroupID { get; set; }
+        public int? UserMinGradeLevel { get; set; }
+        public int? UserMaxGradeLevel { get; set; }
+        public int? UserGroupID { get; set; }
         public string UserDepartment { get; set; }
         public string UserTeam { get; set; }
         public string UserTeamFilter { get; set; }
         public string WorkerID { get; set; }
         public string WorkerEmployeeID { get; set; }
         public string WorkerFullName { get; set; }
-        public int WorkerMinGradeLevel { get; set; }
-        public int WorkerMaxGradeLevel { get; set; }
-        public int WorkerGroupID { get; set; }
-        public int WorkerOrgChartLevel { get; set; }
+        public int? WorkerMinGradeLevel { get; set; }
+        public int? WorkerMaxGradeLevel { get; set; }
+        public int? WorkerGroupID { get; set; }
+        public int? WorkerOrgChartLevel { get; set; }
         public string OtherCriteria { get; set; }
         public Nullable<DateTime> StartDate { get; set; }
         public Nullable<DateTime> EndDate { get; set; }

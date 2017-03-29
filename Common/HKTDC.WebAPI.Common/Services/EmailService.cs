@@ -15,7 +15,8 @@ namespace HKTDC.WebAPI.Common.Services
         {
             try
             {
-                if (checkHavePermission(UserId, "ADMIN", "Email Template")) {
+                if (checkHavePermission(UserId, "ADMIN", "Email Template"))
+                {
                     var list = (from a in Db.EmailTemplate
                                 join b in Db.ProcessList on a.ProcessID equals b.ProcessID into ps
                                 from b in ps.DefaultIfEmpty()
@@ -42,7 +43,8 @@ namespace HKTDC.WebAPI.Common.Services
                         list = list.Where(a => a.ActivityGroupId == StepId);
                     }
                     return list.ToList();
-                } else
+                }
+                else
                 {
                     throw new UnauthorizedAccessException();
                 }

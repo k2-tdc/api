@@ -83,7 +83,7 @@ namespace HKTDC.Service.EmailNotification
                         {
                             mail.From = new MailAddress(sender);
                             mail.To.Add(userAddress);
-                            mail.Subject = generateEmailSubject(t, mailInfo.RefID);
+                            mail.Subject = (generateEmailSubject(t, mailInfo.RefID)).Replace('\r', ' ').Replace('\n', ' ');
                             mail.Body = mailInfo.Content;
                             mail.IsBodyHtml = true;
 
