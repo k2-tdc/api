@@ -22,22 +22,38 @@ namespace HKTDC.WebAPI.Common.Controllers
 
         [Route("workflow/users/{cuUserId}/sharing-list")]
         [HttpGet]
-        public List<DelegationDTO> GetSharingList(string cuUserId, string UserId)
+        public List<DelegationDTO> GetSharingList(string cuUserId, string UserId = null)
         {
             try
             {
-                if (compareUser(Request, cuUserId))
-                {
-                    return this.delegationSharingService.GetDelegationList(cuUserId, UserId);
-                }
-                else
-                {
-                    throw new UnauthorizedAccessException();
-                }
+                //if (compareUser(Request, cuUserId))
+                //{
+                    return this.delegationSharingService.GetSharingList(cuUserId, UserId);
+                //}
+                //else
+                //{
+                //    throw new UnauthorizedAccessException();
+                //}
             }
             catch (Exception ex)
             {
                 var err = this.delegationSharingService.ErrorLog(ex, cuUserId);
+                throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
+            }
+        }
+
+        [Route("workflow/sharing-list/action")]
+        [HttpGet]
+        public List<DelegationActionDTO> GetSharingPermission(string type)
+        {
+
+            try
+            {
+                return this.delegationSharingService.GetDelegationAction(type);
+            }
+            catch (Exception ex)
+            {
+                var err = this.delegationSharingService.ErrorLog(ex, getCurrentUser(Request));
                 throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }
@@ -120,7 +136,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             {
                 if (compareUser(Request, UserId))
                 {
-                    Tuple<bool, string> response = this.delegationSharingService.DeleteDelegation(getCurrentUser(Request), DelegationID);
+                    Tuple<bool, string> response = this.delegationSharingService.DeleteSharing(getCurrentUser(Request), DelegationID);
                     if (response.Item1)
                     {
                         return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
@@ -150,7 +166,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             {
                 if (compareUser(Request, UserId))
                 {
-                    return this.delegationSharingService.GetDelegationDetails(UserId, DelegationID);
+                    return this.delegationSharingService.GetSharingDetails(UserId, DelegationID);
                 }
                 else
                 {

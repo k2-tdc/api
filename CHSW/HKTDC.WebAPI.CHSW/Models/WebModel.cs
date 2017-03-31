@@ -153,6 +153,7 @@ namespace HKTDC.WebAPI.CHSW.Models
         //public string Status { get; set; }
         public string DisplayStatus { get; set; }
         public System.Guid? ActionTakerServiceType { get; set; }
+        public string Permission { get; set; }
     }
     public class AttachFile
     {
@@ -211,6 +212,7 @@ namespace HKTDC.WebAPI.CHSW.Models
         public string DisplayStatus { get; set; }
         public string LastUser { get; set; }
         public int ControlFlag { get; set; }
+        public string Permission { get; set; }
     }
     public partial class RequestReview
     {

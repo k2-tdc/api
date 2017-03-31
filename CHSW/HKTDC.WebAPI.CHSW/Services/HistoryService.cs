@@ -232,13 +232,14 @@ namespace HKTDC.WebAPI.CHSW.Services
                         Rev.Attachments = Db.RequestFormAttachments.Where(P => P.FormID == Rev.FormID).ToList();
                         List<ServiceLevel1> Level1lst = new List<ServiceLevel1>();
                         //foreach (string FirstLevelService in MList.Where(P => P.FormID == FormGUID).Select(P => P.MMenu).Distinct())
-                        foreach (var FirstLevelService in MList.Where(P => P.FormID == FormGUID).Select(P => new { P.MMenu, P.MMenuGUID }).Distinct())
+                        foreach (var FirstLevelService in MList.Where(P => P.FormID == FormGUID).Select(P => new { P.MMenu, P.MMenuGUID, P.ServiceGUID }).Distinct())
                         {
                             if (!string.IsNullOrEmpty(FirstLevelService.MMenu))
                             {
                                 ServiceLevel1 Level1 = new ServiceLevel1();
                                 Level1.Name = FirstLevelService.MMenu;
                                 Level1.GUID = new Guid(FirstLevelService.MMenuGUID);
+                                Level1.ServiceGUID = FirstLevelService.ServiceGUID;
                                 List<ServiceLevel2> Level2lst = new List<ServiceLevel2>();
                                 var s = MList.Where(P => P.FormID == FormGUID && P.MMenu == FirstLevelService.MMenu).Distinct();
                                 foreach (var SecondLevelService in MList.Where(P => P.FormID == FormGUID && P.MMenu == FirstLevelService.MMenu).DistinctBy(P => P.SubMenu))
@@ -246,6 +247,7 @@ namespace HKTDC.WebAPI.CHSW.Services
                                     ServiceLevel2 Level2 = new ServiceLevel2();
                                     Level2.Name = SecondLevelService.SubMenu;
                                     Level2.GUID = new Guid(SecondLevelService.SubMenuGUID);
+                                    Level2.ServiceGUID = SecondLevelService.ServiceGUID;
                                     Level2.SValue = SecondLevelService.ServiceTypeValue;
                                     List<ServiceLevel3> Level3lst = new List<ServiceLevel3>();
                                     foreach (var ThirsLevelService in MList.Where(P => P.FormID == FormGUID && P.MMenu == FirstLevelService.MMenu && P.SubMenu == SecondLevelService.SubMenu).OrderBy(P => P.ServiceGUID))
@@ -253,6 +255,7 @@ namespace HKTDC.WebAPI.CHSW.Services
                                         ServiceLevel3 Level3 = new ServiceLevel3();
                                         Level3.Name = ThirsLevelService.SSubMenu;
                                         Level3.GUID = new Guid(ThirsLevelService.ServiceTypeGUID);
+                                        Level3.ServiceGUID = ThirsLevelService.ServiceGUID;
                                         if (!string.IsNullOrEmpty(ThirsLevelService.SSubMenu))
                                         {
                                             Level3.SValue = ThirsLevelService.ServiceTypeValue;

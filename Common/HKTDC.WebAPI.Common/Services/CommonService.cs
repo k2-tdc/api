@@ -93,7 +93,7 @@ namespace HKTDC.WebAPI.Common.Services
                                         SSubMenu ssubmenu = new SSubMenu();
                                         ssubmenu.Name = ThirdLevelMenu;
                                         ssubmenulist.Add(ssubmenu);
-                                        if (string.IsNullOrEmpty(page) && processName == "CHSW")
+                                        if (string.IsNullOrEmpty(page))
                                         {
                                             if (Utility.Equals(ssubmenu.Name, "ALL TASKS"))
                                             {

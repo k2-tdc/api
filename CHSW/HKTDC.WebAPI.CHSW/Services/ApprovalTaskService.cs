@@ -37,8 +37,8 @@ namespace HKTDC.WebAPI.CHSW.Services
                                    join b in Db.DelegationProcess on a.ActivityGroupID equals b.GroupID into ps
                                    from b in ps.DefaultIfEmpty()
                                    where a.DelegationType == "Sharing"
-                                        && a.FromUser_UserID == SUser
-                                        && a.ToUser_UserID == UserId
+                                        && a.FromWorkerID == SUser
+                                        && a.ToWorkerID == UserId
                                    select b.K2StepName
                                    ).ToList();
                 worklist.AddRange(sharedworklist.Where(P => approvalStatus.Contains(P.ActivityName) && sharePermit.Contains(P.ActivityName)).ToList());
@@ -149,52 +149,55 @@ namespace HKTDC.WebAPI.CHSW.Services
                         if(actions != null)
                         status.actions = actions.Select(P => P.Name).ToList();*/
 
-                        List<ServiceLevel1> Level1lst = new List<ServiceLevel1>();
-                        foreach (var FirstLevelService in StatusList.Where(P => P.FormID == request.FormID && P.ProcInstID == request.ProcInstID).Select(P => new { P.MMenu, P.MMenuGUID }).Distinct())
+                        if (request.Permission != "2")
                         {
-                            if (!string.IsNullOrEmpty(FirstLevelService.MMenu))
+                            List<ServiceLevel1> Level1lst = new List<ServiceLevel1>();
+                            foreach (var FirstLevelService in StatusList.Where(P => P.FormID == request.FormID && P.ProcInstID == request.ProcInstID).Select(P => new { P.MMenu, P.MMenuGUID }).Distinct())
                             {
-                                ServiceLevel1 Level1 = new ServiceLevel1();
-                                Level1.Name = FirstLevelService.MMenu;
-                                Level1.GUID = new Guid(FirstLevelService.MMenuGUID);
-                                List<ServiceLevel2> Level2lst = new List<ServiceLevel2>();
-                                foreach (var SecondLevelService in StatusList.Where(P => P.FormID == request.FormID && P.ProcInstID == request.ProcInstID && P.MMenu == FirstLevelService.MMenu).DistinctBy(P => P.SubMenu))
+                                if (!string.IsNullOrEmpty(FirstLevelService.MMenu))
                                 {
-                                    ServiceLevel2 Level2 = new ServiceLevel2();
-                                    Level2.Name = SecondLevelService.SubMenu;
-                                    Level2.GUID = new Guid(SecondLevelService.SubMenuGUID);
-                                    Level2.SValue = SecondLevelService.ServiceTypeValue;
-                                    List<ServiceLevel3> Level3lst = new List<ServiceLevel3>();
-                                    foreach (var ThirsLevelService in StatusList.Where(P => P.FormID == request.FormID && P.ProcInstID == request.ProcInstID && P.MMenu == FirstLevelService.MMenu && P.SubMenu == SecondLevelService.SubMenu).DistinctBy(P => P.SSubMenu))
+                                    ServiceLevel1 Level1 = new ServiceLevel1();
+                                    Level1.Name = FirstLevelService.MMenu;
+                                    Level1.GUID = new Guid(FirstLevelService.MMenuGUID);
+                                    List<ServiceLevel2> Level2lst = new List<ServiceLevel2>();
+                                    foreach (var SecondLevelService in StatusList.Where(P => P.FormID == request.FormID && P.ProcInstID == request.ProcInstID && P.MMenu == FirstLevelService.MMenu).DistinctBy(P => P.SubMenu))
                                     {
-                                        ServiceLevel3 Level3 = new ServiceLevel3();
-                                        Level3.Name = ThirsLevelService.SSubMenu;
-                                        Level3.GUID = new Guid(ThirsLevelService.SSubMenuGUID);
-                                        Level3.SValue = ThirsLevelService.ServiceTypeValue;
-                                        Level3.ControlFlag = ThirsLevelService.ControlFlag;
-                                        Level3lst.Add(Level3);
+                                        ServiceLevel2 Level2 = new ServiceLevel2();
+                                        Level2.Name = SecondLevelService.SubMenu;
+                                        Level2.GUID = new Guid(SecondLevelService.SubMenuGUID);
+                                        Level2.SValue = SecondLevelService.ServiceTypeValue;
+                                        List<ServiceLevel3> Level3lst = new List<ServiceLevel3>();
+                                        foreach (var ThirsLevelService in StatusList.Where(P => P.FormID == request.FormID && P.ProcInstID == request.ProcInstID && P.MMenu == FirstLevelService.MMenu && P.SubMenu == SecondLevelService.SubMenu).OrderBy(P => P.ServiceGUID))
+                                        {
+                                            ServiceLevel3 Level3 = new ServiceLevel3();
+                                            Level3.Name = ThirsLevelService.SSubMenu;
+                                            Level3.GUID = new Guid(ThirsLevelService.SSubMenuGUID);
+                                            Level3.SValue = ThirsLevelService.ServiceTypeValue;
+                                            Level3.ControlFlag = ThirsLevelService.ControlFlag;
+                                            Level3lst.Add(Level3);
+                                        }
+                                        if (Level3lst.Count > 0)
+                                        {
+                                            Level2.Level3 = Level3lst;
+                                            //Level2.GUID = Guid.Empty;   // To return Null Value.
+                                            Level2.SValue = null;
+                                        }
+                                        else
+                                        { Level2.Level3 = null; }
+                                        Level2lst.Add(Level2);
                                     }
-                                    if (Level3lst.Count > 0)
-                                    {
-                                        Level2.Level3 = Level3lst;
-                                        //Level2.GUID = Guid.Empty;   // To return Null Value.
-                                        Level2.SValue = null;
-                                    }
+                                    if (Level2lst.Count > 0)
+                                        Level1.Level2 = Level2lst;
                                     else
-                                    { Level2.Level3 = null; }
-                                    Level2lst.Add(Level2);
+                                        Level1.Level2 = null;
+                                    Level1lst.Add(Level1);
                                 }
-                                if (Level2lst.Count > 0)
-                                    Level1.Level2 = Level2lst;
-                                else
-                                    Level1.Level2 = null;
-                                Level1lst.Add(Level1);
                             }
+                            if (Level1lst.Count > 0)
+                                status.RequestList = Level1lst;
+                            else
+                                status.RequestList = null;
                         }
-                        if (Level1lst.Count > 0)
-                            status.RequestList = Level1lst;
-                        else
-                            status.RequestList = null;
                         FormRequests.Add(status);
                     }
                 }
@@ -284,7 +287,7 @@ namespace HKTDC.WebAPI.CHSW.Services
                                     permission = "1";
                                 else
                                 {
-                                    if (r.Permission != "1")
+                                    if (permission != "1")
                                     {
                                         permission = r.Permission;
                                     }
@@ -303,6 +306,7 @@ namespace HKTDC.WebAPI.CHSW.Services
                             item.RequestCC = null;
                             item.Remark = null;
                         }
+                        item.Permission = permission;
                         WorkListItem.Add(item);
                     }
                     else

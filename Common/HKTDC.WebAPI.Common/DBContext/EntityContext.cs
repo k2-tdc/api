@@ -31,5 +31,6 @@ namespace HKTDC.WebAPI.Common.DBContext
         public virtual DbSet<ProcessWorkerRuleSetting> ProcessWorkerRuleSetting { get; set; }
         public virtual DbSet<DelegationList> DelegationList { get; set; }
         public virtual DbSet<AppSetting> AppSetting { get; set; }
+        public virtual DbSet<SharingList> SharingList { get; set; }
     }
 }

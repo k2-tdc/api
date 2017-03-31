@@ -34,20 +34,42 @@ namespace HKTDC.WebAPI.Common.Services
             }
         }
 
+        public List<DelegationDTO> GetSharingList(string cuUserId, string UserId)
+        {
+            try
+            {
+                List<DelegationDTO> list = new List<DelegationDTO>();
+                SqlParameter[] sqlp = {
+                    new SqlParameter("UserId", DBNull.Value),
+                    new SqlParameter("cuUserId", cuUserId)
+                };
+                if (!string.IsNullOrEmpty(UserId))
+                {
+                    sqlp[0].Value = UserId;
+                }
+                list = Db.Database.SqlQuery<DelegationDTO>("exec [K2_SharingGetList] @UserId,@cuUserId", sqlp).ToList();
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public List<UserDTO> GetDelegationUser(string Dept)
         {
 
-            var list = Db.vUser;
+            var list = from a in Db.vUser select a;
             if (!string.IsNullOrEmpty(Dept))
             {
-                list.Where(p => p.DeptCode == Dept);
+                list = list.Where(a => a.DeptCode == Dept);
             }
-            return list.Select(p => new UserDTO
+            return list.Select(a => new UserDTO
             {
-                UserID = p.UserID,
-                EmployeeID = p.EmployeeID,
-                FullName = p.FullName
-            }).OrderBy(p => p.FullName).ToList();
+                UserID = a.UserID,
+                EmployeeID = a.EmployeeID,
+                FullName = a.FullName
+            }).OrderBy(a => a.FullName).ToList();
         }
 
         public List<DelegationActionDTO> GetDelegationAction(string type)
@@ -86,7 +108,6 @@ namespace HKTDC.WebAPI.Common.Services
                 }
                 Remark = item.Remark;
                 Permission = item.Permission;
-
                 SqlParameter[] sqlp = {
                     new SqlParameter("DelegationID", DBNull.Value),
                     new SqlParameter("cuUserID", cuUserId),
@@ -144,38 +165,60 @@ namespace HKTDC.WebAPI.Common.Services
             {
                 bool haveAdminPermission = checkAdminPermission(UserId, "admin");
                 DelegationDetailDTO detail = new DelegationDetailDTO();
-                //detail = Db.DelegationList.Where(p => p.DelegationID == DelegationID && p.FromUser_UserID == (haveAdminPermission ? p.FromUser_UserID : UserId)).Select(p => new DelegationDetailDTO
-                //{
-                //    DelegationID = p.DelegationID,
-                //    UserID = p.FromUser_UserID,
-                //    ProcessID = p.ProcessID,
-                //    TaskID = p.ActivityGroupID,
-                //    Dept = p.ToUser_Dept,
-                //    DelegateUserID = p.ToUser_UserID,
-                //    StartDate = p.StartDate,
-                //    EndDate = p.EndDate,
-                //    Action = p.DelegationType,
-                //    Remark = p.Remark,
-                //    Permission = p.Permission
-                //}).FirstOrDefault();
                 detail = (from a in Db.DelegationList
-                          join b in Db.ProcessList on a.ProcessID equals b.ProcessID into ps
+                          join c in Db.ProcessActivityGroup on a.ActivityGroupID equals c.GroupID into pc
+                          from c in pc.DefaultIfEmpty()
+                          join b in Db.ProcessList on c.ProcessID equals b.ProcessID into ps
                           from b in ps.DefaultIfEmpty()
-                          where a.DelegationID == DelegationID && a.FromUser_UserID == (haveAdminPermission ? a.FromUser_UserID : UserId)
+                          where a.DelegationID == DelegationID && a.FromWorkerID == (haveAdminPermission ? a.FromWorkerID : UserId)
                           select new DelegationDetailDTO
                           {
                               DelegationID = a.DelegationID,
-                              UserID = a.FromUser_UserID,
-                              ProcessID = a.ProcessID,
+                              UserID = a.FromWorkerID,
+                              ProcessID = (a.ActivityGroupID == (int?)null ? 0 : c.ProcessID),
                               TaskID = a.ActivityGroupID,
-                              Dept = a.ToUser_Dept,
-                              DelegateUserID = a.ToUser_UserID,
+                              Dept = a.UserDeptCode,
+                              DelegateUserID = a.ToWorkerID,
                               StartDate = a.StartDate,
                               EndDate = a.EndDate,
                               Action = a.DelegationType,
                               Remark = a.Remark,
-                              Permission = a.Permission,
-                              ProcessName = (a.ProcessID == 0 ? "All" : b.ProcessName)
+                              ProcessName = (a.ActivityGroupID == (int?)null ? "All" : b.ProcessName)
+                          }).FirstOrDefault();
+                return detail;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DelegationDetailDTO GetSharingDetails(string UserId, int DelegationID)
+        {
+            try
+            {
+                bool haveAdminPermission = checkAdminPermission(UserId, "admin");
+                DelegationDetailDTO detail = new DelegationDetailDTO();
+                detail = (from a in Db.SharingList
+                          join c in Db.ProcessActivityGroup on a.ActivityGroupID equals c.GroupID into pc
+                          from c in pc.DefaultIfEmpty()
+                          join b in Db.ProcessList on c.ProcessID equals b.ProcessID into ps
+                          from b in ps.DefaultIfEmpty()
+                          where a.DelegationID == DelegationID && a.FromWorkerID == (haveAdminPermission ? a.FromWorkerID : UserId)
+                          select new DelegationDetailDTO
+                          {
+                              DelegationID = a.DelegationID,
+                              UserID = a.FromWorkerID,
+                              ProcessID = (a.ActivityGroupID == (int?)null ? 0 : c.ProcessID),
+                              TaskID = a.ActivityGroupID,
+                              Dept = a.UserDeptCode,
+                              DelegateUserID = a.ToWorkerID,
+                              StartDate = a.StartDate,
+                              EndDate = a.EndDate,
+                              Action = a.DelegationType,
+                              Remark = a.Remark,
+                              ProcessName = (a.ActivityGroupID == (int?)null ? "All" : b.ProcessName),
+                              Permission = a.Permission
                           }).FirstOrDefault();
                 return detail;
             }
@@ -195,9 +238,42 @@ namespace HKTDC.WebAPI.Common.Services
                 var detail = Db.DelegationList.Where(p => p.DelegationID == DelegationID).FirstOrDefault();
                 if (detail != null)
                 {
-                    if (haveAdminPermission || detail.FromUser_UserID == UserId)
+                    if (haveAdminPermission || detail.FromWorkerID == UserId)
                     {
                         Db.DelegationList.Remove(detail);
+                        Db.SaveChanges();
+                        success = true;
+                    }
+                    else
+                    {
+                        msg = "Unauthorized operation.";
+                    }
+                }
+                else
+                {
+                    msg = "Delegation not found.";
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return Tuple.Create(success, msg);
+        }
+
+        public Tuple<bool, string> DeleteSharing(string UserId, int DelegationID)
+        {
+            bool success = false;
+            string msg = "";
+            try
+            {
+                bool haveAdminPermission = checkAdminPermission(UserId, "admin");
+                var detail = Db.SharingList.Where(p => p.DelegationID == DelegationID).FirstOrDefault();
+                if (detail != null)
+                {
+                    if (haveAdminPermission || detail.FromWorkerID == UserId)
+                    {
+                        Db.SharingList.Remove(detail);
                         Db.SaveChanges();
                         success = true;
                     }
@@ -227,12 +303,21 @@ namespace HKTDC.WebAPI.Common.Services
                 if(ProcessId != 0)
                 {
                     DateTime currentTime = DateTime.Now;
-                    list = Db.DelegationList.Where(p => p.ProcessID == ProcessId && p.ToUser_UserID == UserId && p.DelegationType == "Sharing" && p.Enabled == "1" && p.StartDate <= currentTime && p.EndDate >= currentTime).DistinctBy(p => p.FromUser_UserID).Select(p => new UserDTO
-                    {
-                        UserID = p.FromUser_UserID,
-                        EmployeeID = p.FromUser_EmployeeID,
-                        FullName = p.FromUser_FullName
-                    }).ToList();
+                    //list = Db.DelegationList.Where(p => p.ProcessID == ProcessId && p.ToWorkerID == UserId && p.DelegationType == "Sharing" && p.Enabled == "1" && p.StartDate <= currentTime && p.EndDate >= currentTime).DistinctBy(p => p.FromUser_UserID).Select(p => new UserDTO
+                    //{
+                    //    UserID = p.FromUser_UserID,
+                    //    EmployeeID = p.FromUser_EmployeeID,
+                    //    FullName = p.FromUser_FullName
+                    //}).ToList();
+                    list = (from a in Db.SharingList
+                            join b in Db.ProcessActivityGroup on a.ActivityGroupID equals b.GroupID
+                            where b.ProcessID == ProcessId && a.ToWorkerID == UserId && a.DelegationType == "Sharing" && a.Enabled == "1" && a.StartDate <= currentTime && a.EndDate >= currentTime
+                            select new UserDTO
+                            {
+                                UserID = a.FromWorkerID,
+                                EmployeeID = a.FromWorkerEmployeeID,
+                                FullName = a.FromWorkerFullName
+                            }).DistinctBy(a => a.UserID).ToList();
                 }
                 return list;
             }

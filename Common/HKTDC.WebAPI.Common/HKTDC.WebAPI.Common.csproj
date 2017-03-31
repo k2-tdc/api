@@ -180,6 +180,7 @@
     <Compile Include="Models\ProcessStepList.cs" />
     <Compile Include="Models\ProcessWorkerRule.cs" />
     <Compile Include="Models\ProcessWorkerRuleSetting.cs" />
+    <Compile Include="Models\SharingList.cs" />
     <Compile Include="Models\SPAMenuGroup.cs" />
     <Compile Include="Models\SPAMenuItem.cs" />
     <Compile Include="Models\SPAMenuMaster.cs" />

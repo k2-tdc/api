@@ -13,16 +13,16 @@ namespace HKTDC.WebAPI.Common.Models
         [Key]
         public int DelegationID { get; set; }
         public string DelegationType { get; set; }
-        public int ProcessID { get; set; }
+        //public int ProcessID { get; set; }
         public Nullable<int> ActivityGroupID { get; set; }
-        public string Permission { get; set; }
-        public string FromUser_UserID { get; set; }
-        public string FromUser_EmployeeID { get; set; }
-        public string FromUser_FullName { get; set; }
-        public string ToUser_UserID { get; set; }
-        public string ToUser_EmployeeID { get; set; }
-        public string ToUser_FullName { get; set; }
-        public string ToUser_Dept { get; set; }
+       // public string Permission { get; set; }
+        public string FromWorkerID { get; set; }
+        public string FromWorkerEmployeeID { get; set; }
+        public string FromWorkerFullName { get; set; }
+        public string ToWorkerID { get; set; }
+        public string ToWorkerEmployeeID { get; set; }
+        public string ToWorkerFullName { get; set; }
+        public string UserDeptCode { get; set; }
         public string Enabled { get; set; }
         public string Remark { get; set; }
         public Nullable<DateTime> StartDate { get; set; }
