@@ -192,6 +192,7 @@ namespace HKTDC.Service.EmailNotification
                                 }
                             }
                             generated = true;
+                            break;
                         } else
                         {
                             info.Content = null;

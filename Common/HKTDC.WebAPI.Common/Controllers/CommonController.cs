@@ -40,9 +40,16 @@ namespace HKTDC.WebAPI.Common.Controllers
 
         [Route("workflow/departments")]
         [HttpGet]
-        public List<Dept> getDeptList()
+        public List<Dept> getDeptList(string type=null)
         {
-            return this.commonService.getDeptList();
+            try
+            {
+                return this.commonService.getDeptList(type);
+            } catch (Exception ex)
+            {
+                var err = this.commonService.ErrorLog(ex, getCurrentUser(Request));
+                throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
+            }
         }
 
         [Route("workflow/activity-groups")]

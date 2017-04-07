@@ -81,7 +81,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         }
 
         //To Delete the Draft 
-        [Route("workflow/users/{UserId}/draft-list/computer-app")]
+        [Route("workflow/users/{UserId}/draft-list/computer-app/delete")]
         [HttpPost]
         public HttpResponseMessage DeleteDraft(string UserId, [FromBody] dynamic request)
         {

@@ -133,8 +133,9 @@ namespace HKTDC.WebAPI.Common.Services
                             sqlp[7].Value = Remark;
                         }
 
-                        Db.Database.ExecuteSqlCommand("exec [K2_WorkerSaveWorkerRule] @UserId,@WorkerRuleId,@ProcessId,@Code,@Worker,@WorkerType,@Summary,@Remark,@Score", sqlp);
+                        string ruleId = Db.Database.SqlQuery<string>("exec [K2_WorkerSaveWorkerRule] @UserId,@WorkerRuleId,@ProcessId,@Code,@Worker,@WorkerType,@Summary,@Remark,@Score", sqlp).FirstOrDefault();
                         success = true;
+                        msg = ruleId;
                     } else
                     {
                         success = false;
@@ -394,7 +395,7 @@ namespace HKTDC.WebAPI.Common.Services
                         new SqlParameter("Rule", Rule),
                         new SqlParameter("Nature", Nature),
                         new SqlParameter("Score", Score),
-                        new SqlParameter("UserId", UserId),
+                        new SqlParameter("UserId", DBNull.Value),
                         new SqlParameter("LevelNo", DBNull.Value),
                         new SqlParameter("GroupID", DBNull.Value),
                         new SqlParameter("GroupID1", DBNull.Value),
@@ -417,6 +418,10 @@ namespace HKTDC.WebAPI.Common.Services
                     if (WorkerSettingId.GetValueOrDefault(0) != 0)
                     {
                         sqlp[2].Value = WorkerSettingId;
+                    }
+                    if(!string.IsNullOrEmpty(UserId))
+                    {
+                        sqlp[6].Value = UserId;
                     }
                     if (LevelNo.GetValueOrDefault(0) != 0)
                     {

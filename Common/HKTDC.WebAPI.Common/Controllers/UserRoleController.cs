@@ -22,11 +22,11 @@ namespace HKTDC.WebAPI.Common.Controllers
 
         [Route("workflow/user-role")]
         [HttpGet]
-        public List<UserRoleDTO> GetUserRoleList()
+        public List<UserRoleDTO> GetUserRoleList(string process = null)
         {
             try
             {
-                return this.userRoleService.GetUserRoleList();
+                return this.userRoleService.GetUserRoleList(process);
             }
             catch (Exception ex)
             {
@@ -49,11 +49,11 @@ namespace HKTDC.WebAPI.Common.Controllers
                 Tuple<bool, string> response = this.userRoleService.SaveUserRole(stuff);
                 if (response.Item1)
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\""+response.Item1+"\"}", System.Text.Encoding.UTF8, "application/json") };
+                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\""+response.Item2+"\"}", System.Text.Encoding.UTF8, "application/json") };
                 }
                 else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item1 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
                 }
             }
             catch (Exception ex)
@@ -78,11 +78,11 @@ namespace HKTDC.WebAPI.Common.Controllers
                 Tuple<bool, string> response = this.userRoleService.SaveUserRole(stuff);
                 if (response.Item1)
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"" + response.Item1 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
                 }
                 else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item1 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
                 }
             }
             catch (Exception ex)
@@ -150,7 +150,7 @@ namespace HKTDC.WebAPI.Common.Controllers
                 }
                 else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item1 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
                 }
             }
             catch (Exception ex)
@@ -179,7 +179,7 @@ namespace HKTDC.WebAPI.Common.Controllers
                 }
                 else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item1 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
                 }
             }
             catch (Exception ex)

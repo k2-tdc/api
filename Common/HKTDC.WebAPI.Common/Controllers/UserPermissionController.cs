@@ -124,7 +124,7 @@ namespace HKTDC.WebAPI.Common.Controllers
                 }
                 else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item1 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
                 }
             }
             catch (Exception ex)
@@ -152,7 +152,7 @@ namespace HKTDC.WebAPI.Common.Controllers
                 }
                 else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item1 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
                 }
             }
             catch (Exception ex)

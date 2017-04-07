@@ -76,11 +76,14 @@ namespace HKTDC.WebAPI.CHSW.Services
                     status.ApproverFNAME = request.ApproverFNAME;
                     status.DisplayStatus = request.DisplayStatus;
                     status.LastUser = request.LastUser;
+                    status.PreparerFNAME = request.PreparerFullName;
 
                     status.ActionTakerFullName = request.ActionTakerFullName;
                     //status.ActionTakerStatus = request.ActionTakerStatus;
                     status.ITSApproverFullName = request.ITSApproverFullName;
                     //status.ITSApproverStatus = request.ITSApproverStatus;
+
+                    status.CurrentActor = request.CurrentActor;
 
                     List<ServiceLevel1> Level1lst = new List<ServiceLevel1>();
                     //foreach (string FirstLevelService in StatusList.Where(P => P.FormID == FormID).Select(P => P.MMenu).Distinct())

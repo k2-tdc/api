@@ -148,9 +148,16 @@ namespace HKTDC.WebAPI.Common.Services
                     sqlp[11].Value = Permission;
                 }
 
-                Db.Database.ExecuteSqlCommand("exec [K2_DelegationSaveDelegation] @DelegationID,@cuUserID,@UserID,@ProcessID,@TaskID,@Dept,@DelegateUserID,@StartDate,@EndDate,@Action,@Remark,@Permission", sqlp);
+                string returnMsg = Db.Database.SqlQuery<string>("exec [K2_DelegationSaveDelegation] @DelegationID,@cuUserID,@UserID,@ProcessID,@TaskID,@Dept,@DelegateUserID,@StartDate,@EndDate,@Action,@Remark,@Permission", sqlp).FirstOrDefault();
 
-                success = true;
+                if (returnMsg == "1")
+                {
+                    success = true;
+                } else
+                {
+                    success = false;
+                    msg = returnMsg;
+                }
             }
             catch (Exception ex)
             {

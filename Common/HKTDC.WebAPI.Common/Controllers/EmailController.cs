@@ -95,7 +95,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/email-templates/delete-templates")]
+        [Route("workflow/email-templates/delete")]
         [HttpPost]
         public HttpResponseMessage DeleteEmailTemplate()
         {

@@ -42,7 +42,7 @@ namespace HKTDC.WebAPI.CHSW.Services
             {
                 worklist = new List<WorklistItem>();
                 sharedworklist = workfacade.GetWorklistItemsByProcess(SUser);
-                var sharePermit = (from a in Db.DelegationLists
+                var sharePermit = (from a in Db.SharingList
                                    join b in Db.DelegationProcess on a.ActivityGroupID equals b.GroupID into ps
                                    from b in ps.DefaultIfEmpty()
                                    where a.DelegationType == "Sharing"
@@ -141,6 +141,8 @@ namespace HKTDC.WebAPI.CHSW.Services
                                 status.LastUser = request.LastUser;
                                 status.ActionTakerFullName = request.ActionTakerFullName;
                                 status.ITSApproverFullName = request.ITSApproverFullName;
+                                status.PreparerFNAME = request.PreparerFullName;
+                                status.CurrentActor = request.CurrentActor;
 
                                 //if (!string.IsNullOrEmpty(request.ProcInstID))
                                 //{

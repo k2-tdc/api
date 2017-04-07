@@ -82,6 +82,7 @@ namespace HKTDC.WebAPI.CHSW.Services
                 tmpStatus.ApproverFNAME = request.ApproverFullName;
                 tmpStatus.DisplayStatus = request.DisplayStatus;
                 tmpStatus.LastUser = request.LastUser;
+                tmpStatus.PreparerFNAME = request.PreparerFullName;
 
                 tmpStatus.ActionTakerFullName = request.ActionTakerFullName;
                 tmpStatus.ITSApproverFullName = request.ITSApproverFullName;

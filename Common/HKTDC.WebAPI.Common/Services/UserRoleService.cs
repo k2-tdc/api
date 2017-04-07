@@ -13,17 +13,31 @@ namespace HKTDC.WebAPI.Common.Services
     {
         private EntityContext Db = new EntityContext();
 
-        public List<UserRoleDTO> GetUserRoleList()
+        public List<UserRoleDTO> GetUserRoleList(string process)
         {
             try
             {
-                var list = Db.SPAUserRole.Select(p => new UserRoleDTO
+                //var list = Db.SPAUserRole.Select(p => new UserRoleDTO
+                //{
+                //    UserRoleGUID = p.SPAUserRoleGUID,
+                //    Role = p.RoleName,
+                //    Desc = p.Desc
+                //}).ToList();
+                var list = (from a in Db.SPAUserRole
+                            join b in Db.ProcessList on a.ProcessID equals b.ProcessID into ps
+                            from b in ps.DefaultIfEmpty()
+                            select new UserRoleDTO
+                            {
+                                UserRoleGUID = a.SPAUserRoleGUID,
+                                Role = a.RoleName,
+                                Desc = a.Desc,
+                                Process = b.ProcessName
+                            });
+                if(!string.IsNullOrEmpty(process))
                 {
-                    UserRoleGUID = p.SPAUserRoleGUID,
-                    Role = p.RoleName,
-                    Desc = p.Desc
-                }).ToList();
-                return list;
+                    list = list.Where(b => b.Process == process);
+                }
+                return list.ToList();
             }
             catch (Exception ex)
             {
@@ -176,7 +190,7 @@ namespace HKTDC.WebAPI.Common.Services
                             };
                             if (!string.IsNullOrEmpty(ExpiryDate))
                             {
-                                sqlp[3].Value = Convert.ToDateTime(ExpiryDate);
+                                sqlp[3].Value = ExpiryDate;
                             }
                             sqlp[1].Value = Dept;
                             sqlp[2].Value = "Department";
@@ -193,7 +207,7 @@ namespace HKTDC.WebAPI.Common.Services
                             };
                             if (!string.IsNullOrEmpty(ExpiryDate))
                             {
-                                sqlp[3].Value = Convert.ToDateTime(ExpiryDate);
+                                sqlp[3].Value = ExpiryDate;
                             }
                             sqlp[1].Value = Query;
                             sqlp[2].Value = "Query";
@@ -212,7 +226,7 @@ namespace HKTDC.WebAPI.Common.Services
                                 };
                                 if (!string.IsNullOrEmpty(ExpiryDate))
                                 {
-                                    sqlp[3].Value = Convert.ToDateTime(ExpiryDate);
+                                    sqlp[3].Value = ExpiryDate;
                                 }
                                 sqlp[1].Value = user.ToString();
                                 sqlp[2].Value = "User";
@@ -253,7 +267,7 @@ namespace HKTDC.WebAPI.Common.Services
                         var userRoleMemberGp = Db.SPAUserRoleMemberGroup.Where(p => p.SPAUserRoleMemberGroupGUID == UserRoleMemberGUID).FirstOrDefault();
                         if(userRoleMemberGp != null)
                         {
-                            userRoleMemberGp.ExpiryDate = DateTime.ParseExact(ExpiryDate, "MM/dd/yyyy", CultureInfo.InvariantCulture);
+                            userRoleMemberGp.ExpiryDate = !string.IsNullOrEmpty(ExpiryDate)?DateTime.ParseExact(ExpiryDate, "yyyyMMdd", CultureInfo.InvariantCulture): (DateTime?)null;
                             Db.SaveChanges();
                             success = true;
                         } else
@@ -286,17 +300,11 @@ namespace HKTDC.WebAPI.Common.Services
             {
                 if(checkAdminPermission(UserId, "ADMIN"))
                 {
-                    var userRoleMemberGp = Db.SPAUserRoleMemberGroup.Where(p => p.SPAUserRoleMemberGroupGUID == UserRoleMemberGUID).FirstOrDefault();
-                    if(userRoleMemberGp != null)
-                    {
-                        Db.SPAUserRoleMemberGroup.Remove(userRoleMemberGp);
-                        Db.SaveChanges();
-                        success = true;
-                    } else
-                    {
-                        success = false;
-                        msg = "User Role Member not found.";
-                    }
+                    SqlParameter[] sqlp = {
+                                    new SqlParameter("SPAUserRoleMemberGroupGUID", UserRoleMemberGUID)
+                                };
+                    Db.Database.ExecuteSqlCommand("exec [K2_DeleteUserRoleMember] @SPAUserRoleMemberGroupGUID", sqlp);
+                    success = true;
                 } else
                 {
                     success = false;

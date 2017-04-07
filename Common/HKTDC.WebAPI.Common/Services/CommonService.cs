@@ -889,15 +889,29 @@ namespace HKTDC.WebAPI.Common.Services
             return Tuple.Create(haveResult, returnStr);
         }
 
-        public List<Dept> getDeptList()
+        public List<Dept> getDeptList(string type)
         {
-            List<Dept> deptList = new List<Dept>();
-            deptList = Db.vDepartment.Select(p => new Dept
+            try
             {
-                DeptCode = p.CODE,
-                DeptName = p.DESCRIPTION
-            }).OrderBy(p => p.DeptName).ToList();
-            return deptList;
+                List<Dept> deptList = new List<Dept>();
+                //deptList = Db.vDepartment.Select(p => new Dept
+                //{
+                //    DeptCode = p.CODE,
+                //    DeptName = p.DESCRIPTION
+                //}).OrderBy(p => p.DeptName).ToList();
+                SqlParameter[] sqlp = { new SqlParameter ("type",DBNull.Value) };
+
+                if (!string.IsNullOrEmpty(type))
+                {
+                    sqlp[0].Value = type;
+                }
+
+                deptList = Db.Database.SqlQuery<Dept>("exec [pDepartmentGet] @type", sqlp).ToList();
+                return deptList;
+            } catch(Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

@@ -15,6 +15,7 @@ namespace HKTDC.WebAPI.CHSW.Models
         public string DEPT { get; set; }
         public string LocationCode { get; set; }
         public string DeptCode { get; set; }
+        public string OfficeType { get; set; }
         public string FullName { get; set; }
         public string OfficeTel { get; set; }
         public string Email { get; set; }

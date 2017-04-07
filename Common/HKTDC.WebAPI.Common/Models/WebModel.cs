@@ -264,6 +264,7 @@ namespace HKTDC.WebAPI.Common.Models
         public string UserRoleGUID { get; set; }
         public string Role { get; set; }
         public string Desc { get; set; }
+        public string Process { get; set; }
     }
     public class UserRoleDetailDTO
     {

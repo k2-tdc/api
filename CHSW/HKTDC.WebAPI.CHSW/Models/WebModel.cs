@@ -93,6 +93,7 @@ namespace HKTDC.WebAPI.CHSW.Models
         public string ReferenceID { get; set; }
         public string FormStatus { get; set; }
         public DateTime SubmittedOn { get; set; }
+        public string PreparerFNAME { get; set; }
         public string ApplicantUserId { get; set; }
         public string ApplicantEMP { get; set; }
         public string ApplicantFNAME { get; set; }
@@ -109,6 +110,7 @@ namespace HKTDC.WebAPI.CHSW.Models
         public string LastUser { get; set; }
         public string Status { get; set; }
         public string Type { get; set; }
+        public string CurrentActor { get; set; }
 
         public List<ServiceLevel1> RequestList { get; set; }
     }
@@ -213,6 +215,8 @@ namespace HKTDC.WebAPI.CHSW.Models
         public string LastUser { get; set; }
         public int ControlFlag { get; set; }
         public string Permission { get; set; }
+        public string PreparerFullName { get; set; }
+        public string CurrentActor { get; set; }
     }
     public partial class RequestReview
     {

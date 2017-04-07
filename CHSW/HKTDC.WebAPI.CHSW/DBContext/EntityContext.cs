@@ -11,7 +11,7 @@ namespace HKTDC.WebAPI.CHSW.DBContext
     public class EntityContext : DbContext
     {
              
-        public virtual DbSet<DelegationList> DelegationLists { get; set; }
+        public virtual DbSet<SharingList> SharingList { get; set; }
         public virtual DbSet<ProcessList> ProcessLists { get; set; }
         public virtual DbSet<ProcessLog> ProcessLogs { get; set; }
         public virtual DbSet<ProcessStepList> ProcessStepLists { get; set; }

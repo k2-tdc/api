@@ -33,5 +33,6 @@ namespace HKTDC.WebAPI.CHSW.Models
         public string ServiceTypeValue { get; set; }
         public int ControlFlag { get; set; }
         public string ApplicantUserId { get; set; }
+        public string PreparerFullName { get; set; }
     }
 }

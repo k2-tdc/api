@@ -67,7 +67,7 @@ namespace HKTDC.WebAPI.Common.Controllers
                 Tuple<bool, string> response = this.workerRuleService.SaveWorkerRule(getCurrentUser(Request), stuff);
                 if (response.Item1)
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
+                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
                 }
                 else
                 {
@@ -96,7 +96,7 @@ namespace HKTDC.WebAPI.Common.Controllers
                 Tuple<bool, string> response = this.workerRuleService.SaveWorkerRule(getCurrentUser(Request), stuff);
                 if (response.Item1)
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
+                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
                 }
                 else
                 {
