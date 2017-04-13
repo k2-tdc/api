@@ -16,5 +16,6 @@ namespace HKTDC.WebAPI.CHSW.Models
         public string K2ActionName { get; set; }
         public string ActionButtonName { get; set; }
         public string ActionDisplayName { get; set; }
+        public int DisplayOrder { get; set; }
     }
 }

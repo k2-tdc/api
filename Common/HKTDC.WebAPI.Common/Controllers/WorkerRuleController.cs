@@ -418,7 +418,7 @@ namespace HKTDC.WebAPI.Common.Controllers
         {
             try
             {
-                bool havePermission = this.workerRuleService.checkHavePermission(getCurrentUser(Request), "ADMIN", "Worker Rule");
+                bool havePermission = this.workerRuleService.checkHavePermission(getCurrentUser(Request), "ADMIN", "Process Worker");
                 if (havePermission)
                 {
                     var s = HttpContext.Current.Request.Form.GetValues("model");

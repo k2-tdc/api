@@ -257,8 +257,9 @@ namespace HKTDC.WebAPI.CHSW.Services
                                         {
                                             ActionID = b.ActionID,
                                             Action = b.K2ActionName,
-                                            ButtonName = b.ActionButtonName
-                                        }).ToList();
+                                            ButtonName = b.ActionButtonName,
+                                            DisplayOrder = b.DisplayOrder
+                                        }).OrderBy(p => p.DisplayOrder).ToList();
                         WorkListItem.Add(item);
                     }
                 }

@@ -15,7 +15,7 @@ namespace HKTDC.WebAPI.Common.Services
         
         public List<ProcessListDTO> GetProcessList(string UserId, string MenuId)
         {
-            if (checkHavePermission(UserId, "ADMIN", "Worker Rule"))
+            if (checkHavePermission(UserId, "ADMIN", "Process Worker"))
             {
                 List<ProcessListDTO> list = new List<ProcessListDTO>();
                 try
@@ -36,7 +36,7 @@ namespace HKTDC.WebAPI.Common.Services
 
         public List<WorkerRuleDTO> GetWorkerRuleList(string UserId, string process)
         {
-            if (checkHavePermission(UserId, "ADMIN", "Worker Rule"))
+            if (checkHavePermission(UserId, "ADMIN", "Process Worker"))
             {
                 try
                 {
@@ -76,7 +76,7 @@ namespace HKTDC.WebAPI.Common.Services
             string Code, Worker, WorkerType, Summary, Remark;
             int Score;
             int? WorkerRuleId, ProcessId;
-            if (checkHavePermission(UserId, "ADMIN", "Worker Rule"))
+            if (checkHavePermission(UserId, "ADMIN", "Process Worker"))
             {
                 try
                 {
@@ -157,7 +157,7 @@ namespace HKTDC.WebAPI.Common.Services
 
         public WorkerRuleDetailDTO GetWorkerRuleDetail(string UserId, int WorkerRuleId)
         {
-            if (checkHavePermission(UserId, "ADMIN", "Worker Rule"))
+            if (checkHavePermission(UserId, "ADMIN", "Process Worker"))
             {
                 try
                 {
@@ -362,7 +362,7 @@ namespace HKTDC.WebAPI.Common.Services
             string UserId,Department,DateFrom,DateTo,Remark, UserId1, UserId2, Team;
             int Score, Rule, Nature, Priority, WorkerRuleId;
             int? WorkerSettingId, Grade1, Grade2, Grade3, Grade4, LevelNo, GroupID, GroupID1, TeamFilter;
-            if (checkHavePermission(cuUserId, "ADMIN", "Worker Rule"))
+            if (checkHavePermission(cuUserId, "ADMIN", "Process Worker"))
             {
                 try
                 {
@@ -511,7 +511,7 @@ namespace HKTDC.WebAPI.Common.Services
         {
             bool success = false;
             string msg = "";
-            if (checkHavePermission(UserId, "ADMIN", "Worker Rule"))
+            if (checkHavePermission(UserId, "ADMIN", "Process Worker"))
             {
                 try
                 {
@@ -536,7 +536,7 @@ namespace HKTDC.WebAPI.Common.Services
         {
             bool success = false;
             string msg = "";
-            if (checkHavePermission(UserId, "ADMIN", "Worker Rule"))
+            if (checkHavePermission(UserId, "ADMIN", "Process Worker"))
             {
                 try
                 {
@@ -569,7 +569,7 @@ namespace HKTDC.WebAPI.Common.Services
 
         public WorkerRuleRuleDetailDTO GetWorkerRuleRuleDetail(string UserId, int WorkerRuleSettingID)
         {
-            if (checkHavePermission(UserId, "ADMIN", "Worker Rule"))
+            if (checkHavePermission(UserId, "ADMIN", "Process Worker"))
             {
                 try
                 {
@@ -610,7 +610,7 @@ namespace HKTDC.WebAPI.Common.Services
 
         public List<WorkerRuleRuleListDTO> GetWorkerRuleRuleList(string curUser, int WorkerRuleId, string UserId, string WorkerId)
         {
-            if (checkHavePermission(curUser, "ADMIN", "Worker Rule"))
+            if (checkHavePermission(curUser, "ADMIN", "Process Worker"))
             {
                 try
                 {

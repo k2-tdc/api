@@ -247,8 +247,9 @@ namespace HKTDC.WebAPI.CHSW.Services
                                         {
                                             ActionID = b.ActionID,
                                             Action = b.K2ActionName,
-                                            ButtonName = b.ActionButtonName
-                                        }).ToList();
+                                            ButtonName = b.ActionButtonName,
+                                            DisplayOrder = b.DisplayOrder
+                                        }).OrderBy(p => p.DisplayOrder).ToList();
 
                         // Approver return to Applicant, Prepare = Applicant, no return to preparer button
                         if (item.FormStatus == "Return")

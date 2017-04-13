@@ -66,7 +66,7 @@ namespace HKTDC.WebAPI.CHSW.Services
             else if (ex is UnauthorizedAccessException)
             {
                 Errthrow.LogPriority = "Heigh";
-                exceptionp.Code = HttpStatusCode.Unauthorized;
+                exceptionp.Code = HttpStatusCode.Forbidden;
                 exceptionp.Message = "The User is unauthorized.";
             }
             else

@@ -62,7 +62,15 @@ namespace HKTDC.WebAPI.CHSW.Controllers
         [HttpGet]
         public List<ChkFrmStatus> getHistoryList(string userid, string applicant = null, [FromUri(Name = "approval-start-date")] string approvalStartDate = null, [FromUri(Name = "approval-end-date")] string approvalEndDate = null, string status = null, string refid = null, [FromUri(Name = "create-start-date")] string createStartDate = null, [FromUri(Name = "create-end-date")] string createEndDate = null, string keyword = null, string employeeid = null, [FromUri(Name = "applicant-employee-id")] string applicantEmpNo = null)
         {
-            return this.historyService.getApprovalList(userid, applicantEmpNo, applicant, approvalStartDate, approvalEndDate, status, refid, createStartDate, createEndDate, keyword);
+            try
+            {
+                return this.historyService.getApprovalList(userid, applicantEmpNo, applicant, approvalStartDate, approvalEndDate, status, refid, createStartDate, createEndDate, keyword);
+            }
+            catch (Exception ex)
+            {
+                var err = this.checkStatusService.ErrorLog(ex, getCurrentUser(Request));
+                throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
+            }
         }
 
         [Route("workflow/applications/computer-app/usage-report")]

@@ -269,6 +269,11 @@ namespace HKTDC.WebAPI.Common.Services
                         {
                             userRoleMemberGp.ExpiryDate = !string.IsNullOrEmpty(ExpiryDate)?DateTime.ParseExact(ExpiryDate, "yyyyMMdd", CultureInfo.InvariantCulture): (DateTime?)null;
                             Db.SaveChanges();
+
+                            SqlParameter[] sqlp = {
+                                    new SqlParameter("RoleGUID", userRoleMemberGp.SPAUserRoleGUID)
+                                };
+                            Db.Database.ExecuteSqlCommand("exec [pUserRoleMemberResolve] @RoleGUID", sqlp);
                             success = true;
                         } else
                         {

@@ -14,11 +14,13 @@ namespace HKTDC.WebAPI.CHSW.Services
 
         public List<ChkFrmStatus> getApprovalList(string userid, string employeeid, string applicant, string approvalStartDate, string approvalEndDate, string status, string refid, string createStartDate, string createEndDate, string keyword)
         {
-            List<ApproverHistory> rawHistory = new List<ApproverHistory>();
-            List<ChkFrmStatus> historyList = new List<ChkFrmStatus>();
-            string queryParameter = "@userid,@applicantEmpNo,@applicant,@approvalStart,@approvalEnd,@status,@refid,@createStart,@createEnd,@keyword";
-            SqlParameter[] sqlp =
+            try
             {
+                List<ApproverHistory> rawHistory = new List<ApproverHistory>();
+                List<ChkFrmStatus> historyList = new List<ChkFrmStatus>();
+                string queryParameter = "@userid,@applicantEmpNo,@applicant,@approvalStart,@approvalEnd,@status,@refid,@createStart,@createEnd,@keyword";
+                SqlParameter[] sqlp =
+                {
                 new SqlParameter("userid", userid),
                 new SqlParameter("applicantEmpNo", DBNull.Value),
                 new SqlParameter("applicant", DBNull.Value),
@@ -30,111 +32,115 @@ namespace HKTDC.WebAPI.CHSW.Services
                 new SqlParameter("createEnd", DBNull.Value),
                 new SqlParameter("keyword", DBNull.Value)
             };
-            if (!string.IsNullOrEmpty(employeeid))
-            {
-                sqlp[1].Value = employeeid;
-            }
-            if (!String.IsNullOrEmpty(applicant))
-            {
-                sqlp[2].Value = applicant;
-            }
-            if (!String.IsNullOrEmpty(approvalStartDate))
-            {
-                sqlp[3].Value = approvalStartDate;
-            }
-            if (!String.IsNullOrEmpty(approvalEndDate))
-            {
-                sqlp[4].Value = approvalEndDate;
-            }
-            if (!String.IsNullOrEmpty(status))
-            {
-                sqlp[5].Value = status;
-            }
-            if (!String.IsNullOrEmpty(refid))
-            {
-                sqlp[6].Value = refid;
-            }
-            if (!String.IsNullOrEmpty(createStartDate))
-            {
-                sqlp[7].Value = createStartDate;
-            }
-            if (!String.IsNullOrEmpty(createEndDate))
-            {
-                sqlp[8].Value = createEndDate;
-            }
-            if (!String.IsNullOrEmpty(keyword))
-            {
-                sqlp[9].Value = keyword;
-            }
-            rawHistory =  Db.Database.SqlQuery<ApproverHistory>("exec [K2_ApproverHistory] " + queryParameter, sqlp.ToArray()).ToList();
-            
-            foreach (var request in rawHistory.DistinctBy(p => p.ProcInstID))
-            {
-                ChkFrmStatus tmpStatus = new ChkFrmStatus();
-                tmpStatus.FormID = request.FormID;
-                tmpStatus.ProcInstID = request.ProcInstID.ToString();
-                tmpStatus.ReferenceID = request.ReferenceID;
-                tmpStatus.FormStatus = request.FormStatus;
-                tmpStatus.SubmittedOn = request.CommentedOn;
-                tmpStatus.ApplicantEMP = request.ApplicantEmployeeID;
-                tmpStatus.ApplicantFNAME = request.ApplicantFullName;
-                tmpStatus.ApproverEmp = request.ApproverEmployeeID;
-                tmpStatus.ApproverFNAME = request.ApproverFullName;
-                tmpStatus.DisplayStatus = request.DisplayStatus;
-                tmpStatus.LastUser = request.LastUser;
-                tmpStatus.PreparerFNAME = request.PreparerFullName;
-
-                tmpStatus.ActionTakerFullName = request.ActionTakerFullName;
-                tmpStatus.ITSApproverFullName = request.ITSApproverFullName;
-                tmpStatus.ApplicantUserId = request.ApplicantUserId;
-
-                List<ServiceLevel1> Level1lst = new List<ServiceLevel1>();
-                foreach (var FirstLevelService in rawHistory.Where(P => P.ProcessLogID == request.ProcessLogID && P.ProcInstID == request.ProcInstID).Select(P => new { P.MMenu, P.MMenuGUID }).Distinct())
+                if (!string.IsNullOrEmpty(employeeid))
                 {
-                    ServiceLevel1 Level1 = new ServiceLevel1();
-                    Level1.Name = FirstLevelService.MMenu;
-                    Level1.GUID = FirstLevelService.MMenuGUID;
-                    List<ServiceLevel2> Level2lst = new List<ServiceLevel2>();
-                    foreach (var SecondLevelService in rawHistory.Where(P => P.ProcessLogID == request.ProcessLogID && P.ProcInstID == request.ProcInstID  && P.MMenu == FirstLevelService.MMenu).DistinctBy(P => P.SubMenu))
-                    {
-                        ServiceLevel2 Level2 = new ServiceLevel2();
-                        Level2.Name = SecondLevelService.SubMenu;
-                        Level2.GUID = SecondLevelService.SubMenuGUID;
-                        Level2.SValue = SecondLevelService.ServiceTypeValue;
-                        List<ServiceLevel3> Level3lst = new List<ServiceLevel3>();
-                        foreach (var ThirsLevelService in rawHistory.Where(P => P.ProcessLogID == request.ProcessLogID && P.ProcInstID == request.ProcInstID  && P.MMenu == FirstLevelService.MMenu && P.SubMenu == SecondLevelService.SubMenu).OrderBy(P => P.ServiceGUID))
-                        {
-                            ServiceLevel3 Level3 = new ServiceLevel3();
-                            Level3.Name = ThirsLevelService.SSubMenu;
-                            Level3.GUID = ThirsLevelService.SSubMenuGUID;
-                            Level3.SValue = ThirsLevelService.ServiceTypeValue;
-                            Level3.ControlFlag = ThirsLevelService.ControlFlag;
-                            Level3lst.Add(Level3);
-                        }
-                        if (Level3lst.Count > 0)
-                        {
-                            Level2.Level3 = Level3lst;
-                            //Level2.GUID = Guid.Empty;   // To return Null Value.
-                            Level2.SValue = null;
-                        }
-                        else
-                        { Level2.Level3 = null; }
-                        Level2lst.Add(Level2);
-                    }
-                    if (Level2lst.Count > 0)
-                        Level1.Level2 = Level2lst;
-                    else
-                        Level1.Level2 = null;
-                    Level1lst.Add(Level1);
+                    sqlp[1].Value = employeeid;
                 }
+                if (!String.IsNullOrEmpty(applicant))
+                {
+                    sqlp[2].Value = applicant;
+                }
+                if (!String.IsNullOrEmpty(approvalStartDate))
+                {
+                    sqlp[3].Value = approvalStartDate;
+                }
+                if (!String.IsNullOrEmpty(approvalEndDate))
+                {
+                    sqlp[4].Value = approvalEndDate;
+                }
+                if (!String.IsNullOrEmpty(status))
+                {
+                    sqlp[5].Value = status;
+                }
+                if (!String.IsNullOrEmpty(refid))
+                {
+                    sqlp[6].Value = refid;
+                }
+                if (!String.IsNullOrEmpty(createStartDate))
+                {
+                    sqlp[7].Value = createStartDate;
+                }
+                if (!String.IsNullOrEmpty(createEndDate))
+                {
+                    sqlp[8].Value = createEndDate;
+                }
+                if (!String.IsNullOrEmpty(keyword))
+                {
+                    sqlp[9].Value = keyword;
+                }
+                rawHistory = Db.Database.SqlQuery<ApproverHistory>("exec [K2_ApproverHistory] " + queryParameter, sqlp.ToArray()).ToList();
 
-                if (Level1lst.Count > 0)
-                    tmpStatus.RequestList = Level1lst;
-                else
-                    tmpStatus.RequestList = null;
-                historyList.Add(tmpStatus);
+                foreach (var request in rawHistory.DistinctBy(p => p.ProcInstID))
+                {
+                    ChkFrmStatus tmpStatus = new ChkFrmStatus();
+                    tmpStatus.FormID = request.FormID;
+                    tmpStatus.ProcInstID = request.ProcInstID.ToString();
+                    tmpStatus.ReferenceID = request.ReferenceID;
+                    tmpStatus.FormStatus = request.FormStatus;
+                    tmpStatus.SubmittedOn = request.CommentedOn;
+                    tmpStatus.ApplicantEMP = request.ApplicantEmployeeID;
+                    tmpStatus.ApplicantFNAME = request.ApplicantFullName;
+                    tmpStatus.ApproverEmp = request.ApproverEmployeeID;
+                    tmpStatus.ApproverFNAME = request.ApproverFullName;
+                    tmpStatus.DisplayStatus = request.DisplayStatus;
+                    tmpStatus.LastUser = request.LastUser;
+                    tmpStatus.PreparerFNAME = request.PreparerFullName;
+
+                    tmpStatus.ActionTakerFullName = request.ActionTakerFullName;
+                    tmpStatus.ITSApproverFullName = request.ITSApproverFullName;
+                    tmpStatus.ApplicantUserId = request.ApplicantUserId;
+
+                    List<ServiceLevel1> Level1lst = new List<ServiceLevel1>();
+                    foreach (var FirstLevelService in rawHistory.Where(P => P.ProcessLogID == request.ProcessLogID && P.ProcInstID == request.ProcInstID).Select(P => new { P.MMenu, P.MMenuGUID }).Distinct())
+                    {
+                        ServiceLevel1 Level1 = new ServiceLevel1();
+                        Level1.Name = FirstLevelService.MMenu;
+                        Level1.GUID = FirstLevelService.MMenuGUID;
+                        List<ServiceLevel2> Level2lst = new List<ServiceLevel2>();
+                        foreach (var SecondLevelService in rawHistory.Where(P => P.ProcessLogID == request.ProcessLogID && P.ProcInstID == request.ProcInstID && P.MMenu == FirstLevelService.MMenu).DistinctBy(P => P.SubMenu))
+                        {
+                            ServiceLevel2 Level2 = new ServiceLevel2();
+                            Level2.Name = SecondLevelService.SubMenu;
+                            Level2.GUID = SecondLevelService.SubMenuGUID;
+                            Level2.SValue = SecondLevelService.ServiceTypeValue;
+                            List<ServiceLevel3> Level3lst = new List<ServiceLevel3>();
+                            foreach (var ThirsLevelService in rawHistory.Where(P => P.ProcessLogID == request.ProcessLogID && P.ProcInstID == request.ProcInstID && P.MMenu == FirstLevelService.MMenu && P.SubMenu == SecondLevelService.SubMenu).OrderBy(P => P.ServiceGUID))
+                            {
+                                ServiceLevel3 Level3 = new ServiceLevel3();
+                                Level3.Name = ThirsLevelService.SSubMenu;
+                                Level3.GUID = ThirsLevelService.SSubMenuGUID;
+                                Level3.SValue = ThirsLevelService.ServiceTypeValue;
+                                Level3.ControlFlag = ThirsLevelService.ControlFlag;
+                                Level3lst.Add(Level3);
+                            }
+                            if (Level3lst.Count > 0)
+                            {
+                                Level2.Level3 = Level3lst;
+                                //Level2.GUID = Guid.Empty;   // To return Null Value.
+                                Level2.SValue = null;
+                            }
+                            else
+                            { Level2.Level3 = null; }
+                            Level2lst.Add(Level2);
+                        }
+                        if (Level2lst.Count > 0)
+                            Level1.Level2 = Level2lst;
+                        else
+                            Level1.Level2 = null;
+                        Level1lst.Add(Level1);
+                    }
+
+                    if (Level1lst.Count > 0)
+                        tmpStatus.RequestList = Level1lst;
+                    else
+                        tmpStatus.RequestList = null;
+                    historyList.Add(tmpStatus);
+                }
+                return historyList;
+            } catch(Exception ex)
+            {
+                throw ex;
             }
-            return historyList;
         }
 
         public List<Review> GetHistoryDetails(string ReferID, string UserId, string ProInstID)

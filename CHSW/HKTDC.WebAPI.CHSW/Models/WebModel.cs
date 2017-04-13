@@ -308,6 +308,7 @@ namespace HKTDC.WebAPI.CHSW.Models
         public int ActionID { get; set; }
         public string Action { get; set; }
         public string ButtonName { get; set; }
+        public int DisplayOrder { get; set; }
     }
 
     public class CommonSettingsDTO {
