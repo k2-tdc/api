@@ -143,6 +143,17 @@ namespace HKTDC.WebAPI.Common.Services
             Db.SaveChanges();
             return exceptionp;
         }
+
+        public void LogTime(string place, long time)
+        {
+            Models.ErrorLog Errthrow = new Models.ErrorLog();
+            Errthrow.LogType = "Debug";
+            Errthrow.ErrorMessage = time.ToString();
+            Errthrow.StackTrace = place;
+            Errthrow.LogCreatedDateTime = DateTime.Now;
+            Db.ErrorLogs.Add(Errthrow);
+            Db.SaveChanges();
+        }
     }
 
     /// <summary>

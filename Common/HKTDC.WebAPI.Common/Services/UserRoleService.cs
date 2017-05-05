@@ -13,31 +13,38 @@ namespace HKTDC.WebAPI.Common.Services
     {
         private EntityContext Db = new EntityContext();
 
-        public List<UserRoleDTO> GetUserRoleList(string process)
+        public List<UserRoleDTO> GetUserRoleList(string UserId, string process)
         {
             try
             {
-                //var list = Db.SPAUserRole.Select(p => new UserRoleDTO
-                //{
-                //    UserRoleGUID = p.SPAUserRoleGUID,
-                //    Role = p.RoleName,
-                //    Desc = p.Desc
-                //}).ToList();
-                var list = (from a in Db.SPAUserRole
-                            join b in Db.ProcessList on a.ProcessID equals b.ProcessID into ps
-                            from b in ps.DefaultIfEmpty()
-                            select new UserRoleDTO
-                            {
-                                UserRoleGUID = a.SPAUserRoleGUID,
-                                Role = a.RoleName,
-                                Desc = a.Desc,
-                                Process = b.ProcessName
-                            });
-                if(!string.IsNullOrEmpty(process))
+                if (checkHavePermission(UserId, "ADMIN", "User Role"))
                 {
-                    list = list.Where(b => b.Process == process);
+                    if (!string.IsNullOrEmpty(process))
+                    {
+                        var list = (from a in Db.SPAUserRole
+                                    join b in Db.ProcessList on a.ProcessID equals b.ProcessID into ps
+                                    from b in ps.DefaultIfEmpty()
+                                    where b.ProcessName == process
+                                    select new UserRoleDTO
+                                    {
+                                        UserRoleGUID = a.SPAUserRoleGUID,
+                                        Role = a.RoleName,
+                                        Desc = a.Desc,
+                                        Process = b.ProcessName
+                                    });
+                        //if (!string.IsNullOrEmpty(process))
+                        //{
+                        //    list = list.Where(b => b.Process == process);
+                        //}
+                        return list.ToList();
+                    }
+
+                    return new List<UserRoleDTO>();
                 }
-                return list.ToList();
+                else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -99,7 +106,7 @@ namespace HKTDC.WebAPI.Common.Services
             string msg = "";
             try
             {
-                if (checkAdminPermission(UserId, "ADMIN"))
+                if (checkHavePermission(UserId, "ADMIN", "User Role"))
                 {
                     //var userRole = Db.SPAUserRole.Where(p => p.SPAUserRoleGUID == RoleId).FirstOrDefault();
                     //if(userRole != null)
@@ -128,22 +135,24 @@ namespace HKTDC.WebAPI.Common.Services
             return Tuple.Create(success, msg);
         }
 
-        public UserRoleDetailDTO GetUserRoleDetail(string RoleId)
+        public UserRoleDetailDTO GetUserRoleDetail(string UserId, string RoleId)
         {
             try
             {
-                UserRoleDetailDTO userRoleDetail = (from a in Db.SPAUserRole
-                                                    join b in Db.ProcessList on a.ProcessID equals b.ProcessID into pa
-                                                    from b in pa.DefaultIfEmpty()
-                                                    where a.SPAUserRoleGUID == RoleId
-                                                    select new UserRoleDetailDTO
-                                                    {
-                                                        UserRoleGUID = a.SPAUserRoleGUID,
-                                                        Role = a.RoleName,
-                                                        Desc = a.Desc,
-                                                        ProcessId = a.ProcessID,
-                                                        ProcessName = b.ProcessName
-                                                    }).FirstOrDefault();
+                if (checkHavePermission(UserId, "ADMIN", "User Role"))
+                {
+                    UserRoleDetailDTO userRoleDetail = (from a in Db.SPAUserRole
+                                                        join b in Db.ProcessList on a.ProcessID equals b.ProcessID into pa
+                                                        from b in pa.DefaultIfEmpty()
+                                                        where a.SPAUserRoleGUID == RoleId
+                                                        select new UserRoleDetailDTO
+                                                        {
+                                                            UserRoleGUID = a.SPAUserRoleGUID,
+                                                            Role = a.RoleName,
+                                                            Desc = a.Desc,
+                                                            ProcessId = a.ProcessID,
+                                                            ProcessName = b.ProcessName
+                                                        }).FirstOrDefault();
                     Db.SPAUserRole.Where(p => p.SPAUserRoleGUID == RoleId).Select(p => new UserRoleDetailDTO
                     {
                         UserRoleGUID = p.SPAUserRoleGUID,
@@ -151,12 +160,17 @@ namespace HKTDC.WebAPI.Common.Services
                         Desc = p.Desc,
                         ProcessId = p.ProcessID
                     }).FirstOrDefault();
-                if(userRoleDetail != null)
-                {
-                    SqlParameter[] sqlp = { new SqlParameter ("RoleId",RoleId) };
-                    userRoleDetail.Member = Db.Database.SqlQuery<UserRoleMemberDTO>("exec [K2_GetUserRoleMemberGroupList] @RoleId", sqlp).ToList();
+                    if (userRoleDetail != null)
+                    {
+                        SqlParameter[] sqlp = { new SqlParameter("RoleId", RoleId) };
+                        userRoleDetail.Member = Db.Database.SqlQuery<UserRoleMemberDTO>("exec [K2_GetUserRoleMemberGroupList] @RoleId", sqlp).ToList();
+                    }
+                    return userRoleDetail;
                 }
-                return userRoleDetail;
+                else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             } catch (Exception ex)
             {
                 throw ex;
@@ -170,7 +184,7 @@ namespace HKTDC.WebAPI.Common.Services
             string Dept, User, Query, UserRoleGUID, ExpiryDate;
             try
             {
-                if (checkAdminPermission(UserId, "ADMIN"))
+                if (checkHavePermission(UserId, "ADMIN", "User Role"))
                 {
                     Dept = item.Dept;
                     //User = item.User;
@@ -259,7 +273,7 @@ namespace HKTDC.WebAPI.Common.Services
             string ExpiryDate, UserRoleMemberGUID;
             try
             {
-                if(checkAdminPermission(UserId, "ADMIN"))
+                if(checkHavePermission(UserId, "ADMIN", "User Role"))
                 {
                     ExpiryDate = item.ExpiryDate;
                     UserRoleMemberGUID = item.UserRoleMemberGUID;
@@ -303,7 +317,7 @@ namespace HKTDC.WebAPI.Common.Services
             string msg = "";
             try
             {
-                if(checkAdminPermission(UserId, "ADMIN"))
+                if(checkHavePermission(UserId, "ADMIN", "User Role"))
                 {
                     SqlParameter[] sqlp = {
                                     new SqlParameter("SPAUserRoleMemberGroupGUID", UserRoleMemberGUID)

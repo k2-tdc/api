@@ -131,6 +131,7 @@ namespace HKTDC.WebAPI.CHSW.Services
                         status.ITSApproverFullName = request.ITSApproverFullName;
                         status.PreparerFNAME = request.PreparerFullName;
                         status.CurrentActor = request.CurrentActor;
+                        status.SUser = request.SUser;
 
                         int procid = 0;
                         if (!string.IsNullOrEmpty(request.ProcInstID))
@@ -212,7 +213,7 @@ namespace HKTDC.WebAPI.CHSW.Services
             return FormRequests;
         }
 
-        public List<Review> GetApproveDetails(string UserId, string ProsIncId, string SN)
+        public List<Review> GetApproveDetails(string UserId, string ProsIncId, string SN, string SUser)
         {
             List<Review> WorkListItem = new List<Review>();
             try
@@ -273,9 +274,15 @@ namespace HKTDC.WebAPI.CHSW.Services
                     List<CheckDelegationUser> record = new List<CheckDelegationUser>();
                     SqlParameter[] sqlp = {
                      new SqlParameter ("ProcInstId", ProsIncId),
-                     new SqlParameter("SUser", UserId)};
+                     new SqlParameter("SUser", UserId),
+                     new SqlParameter("FromWorker", DBNull.Value)};
 
-                    record = Db.Database.SqlQuery<CheckDelegationUser>("exec [K2_checkSharedUser] @ProcInstId,@SUser", sqlp).ToList();
+                    if(!string.IsNullOrEmpty(SUser))
+                    {
+                        sqlp[2].Value = SUser;
+                    }
+
+                    record = Db.Database.SqlQuery<CheckDelegationUser>("exec [K2_checkSharedUser] @ProcInstId,@SUser,@FromWorker", sqlp).ToList();
                     if (record.Count() > 0)
                     {
                         string ReferID = (from a in Db.RequestFormMasters

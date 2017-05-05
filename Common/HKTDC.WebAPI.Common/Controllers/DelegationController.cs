@@ -20,35 +20,20 @@ namespace HKTDC.WebAPI.Common.Controllers
             this.delegationSharingService = new DelegationSharingService();
         }
 
-        [Route("workflow/users/{cuUserId}/delegation-list")]
+        [Route("workflow/users/{uid}/delegation-list")]
         [HttpGet]
-        public List<DelegationDTO> GetDelegationList(string cuUserId, string UserId = null)
+        public List<DelegationDTO> GetDelegationList(string uid)
         {
             try
             {
-                //if (compareUser(Request, cuUserId))
-                //{
-                    return this.delegationSharingService.GetDelegationList(cuUserId, UserId);
-                //}
-                //else
-                //{
-                //    throw new UnauthorizedAccessException();
-                //}
-            }
-            catch (Exception ex)
-            {
-                var err = this.delegationSharingService.ErrorLog(ex, cuUserId);
-                throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
-            }
-        }
-
-        [Route("workflow/delegation-sharing-list/user")]
-        [HttpGet]
-        public List<UserDTO> GetDelegationUser(string Dept = null)
-        {
-            try
-            {
-                return this.delegationSharingService.GetDelegationUser(Dept);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/delegation-list", "HttpGet", getCurrentUser(Request), uid))
+                {
+                    return this.delegationSharingService.GetDelegationList(getCurrentUser(Request), uid);
+                }
+                else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -57,14 +42,35 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/delegation-sharing-list/action")]
+        //[Route("workflow/delegation-sharing-list/user")]
+        //[HttpGet]
+        //public List<UserDTO> GetDelegationUser(string Dept = null)
+        //{
+        //    try
+        //    {
+        //        return this.delegationSharingService.GetDelegationUser(Dept);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        var err = this.delegationSharingService.ErrorLog(ex, getCurrentUser(Request));
+        //        throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
+        //    }
+        //}
+
+        [Route("workflow/delegation-list/actions")]
         [HttpGet]
         public List<DelegationActionDTO> GetDelegationAction(string type)
         {
 
             try
             {
-                return this.delegationSharingService.GetDelegationAction(type);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/delegation-list/actions", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.delegationSharingService.GetDelegationAction(type);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -73,13 +79,13 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/users/{UserId}/delegation-list")]
+        [Route("workflow/users/{uid}/delegation-list")]
         [HttpPost]
-        public HttpResponseMessage SaveDelegation(string UserId)
+        public HttpResponseMessage SaveDelegation(string uid)
         {
             try
             {
-                if (compareUser(Request, UserId))
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/delegation-list", "HttpPost", getCurrentUser(Request), uid))
                 {
                     var s = HttpContext.Current.Request.Form.GetValues("model");
                     string json = s[0];
@@ -107,13 +113,13 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/users/{UserId}/delegation-list")]
+        [Route("workflow/users/{uid}/delegation-list/{DelegationID:int}")]
         [HttpPut]
-        public HttpResponseMessage UpdateDelegation(string UserId)
+        public HttpResponseMessage UpdateDelegation(string uid, int DelegationID)
         {
             try
             {
-                if (compareUser(Request, UserId))
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/delegation-list/{DelegationID}", "HttpPut", getCurrentUser(Request), uid))
                 {
                     var s = HttpContext.Current.Request.Form.GetValues("model");
                     string json = s[0];
@@ -142,15 +148,15 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/users/{UserId}/delegation-list/{DelegationID:int}")]
+        [Route("workflow/users/{uid}/delegation-list/{DelegationID:int}")]
         [HttpGet]
-        public DelegationDetailDTO GetDelegationDetails(string UserId, int DelegationID)
+        public DelegationDetailDTO GetDelegationDetails(string uid, int DelegationID)
         {
             try
             {
-                if (compareUser(Request, UserId))
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/delegation-list/{DelegationID}", "HttpGet", getCurrentUser(Request), uid))
                 {
-                    return this.delegationSharingService.GetDelegationDetails(UserId, DelegationID);
+                    return this.delegationSharingService.GetDelegationDetails(uid, DelegationID);
                 }
                 else
                 {
@@ -159,18 +165,18 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
             catch (Exception ex)
             {
-                var err = this.delegationSharingService.ErrorLog(ex, UserId);
+                var err = this.delegationSharingService.ErrorLog(ex, getCurrentUser(Request));
                 throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }
 
-        [Route("workflow/users/{UserId}/delegation-list/{DelegationID:int}")]
+        [Route("workflow/users/{uid}/delegation-list/{DelegationID:int}")]
         [HttpDelete]
-        public HttpResponseMessage DeleteDelegation(string UserId, int DelegationID)
+        public HttpResponseMessage DeleteDelegation(string uid, int DelegationID)
         {
             try
             {
-                if (compareUser(Request, UserId))
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/delegation-list/{DelegationID}", "HttpDelete", getCurrentUser(Request), uid))
                 {
                     Tuple<bool, string> response = this.delegationSharingService.DeleteDelegation(getCurrentUser(Request), DelegationID);
                     if (response.Item1)
@@ -189,7 +195,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
             catch (Exception ex)
             {
-                var err = this.delegationSharingService.ErrorLog(ex, UserId);
+                var err = this.delegationSharingService.ErrorLog(ex, getCurrentUser(Request));
                 throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }

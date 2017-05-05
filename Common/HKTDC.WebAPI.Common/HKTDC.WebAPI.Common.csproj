@@ -229,17 +229,17 @@
     <None Include="Properties\PublishProfiles\WebApi.pubxml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CHSW\HKTDC.WebAPI.CHSW\HKTDC.WebAPI.CHSW.csproj">
-      <Project>{34DBFFE6-9EE8-4C74-B060-04D2D938042E}</Project>
-      <Name>HKTDC.WebAPI.CHSW</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\K2WF\aZaaS.Compact.Framework.Workflow\aZaaS.Compact.Framework.Workflow.csproj">
-      <Project>{B9C230E4-9CDD-4C0B-9B0E-EB79BB0260AB}</Project>
+      <Project>{b9c230e4-9cdd-4c0b-9b0e-eb79bb0260ab}</Project>
       <Name>aZaaS.Compact.Framework.Workflow</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\K2WF\aZaaS.Compact.Framework\aZaaS.Compact.Framework.csproj">
-      <Project>{0168F92B-CC5A-4BA1-A047-AE5A2285DDA8}</Project>
+      <Project>{0168f92b-cc5a-4ba1-a047-ae5a2285dda8}</Project>
       <Name>aZaaS.Compact.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HKTDC.WebAPI.UTILS\HKTDC.Utils.csproj">
+      <Project>{037b7023-2d0a-4a51-af82-28a052143950}</Project>
+      <Name>HKTDC.Utils</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

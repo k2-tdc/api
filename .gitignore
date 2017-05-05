@@ -24,3 +24,6 @@ Common/HKTDC.Service.EmailNotification/Properties/
 Common/HKTDC.WebAPI.Common/ClassDiagram1.cd
 CHSW/HKTDC.WebAPI.CHSW/ClassDiagram1.cd
 .vs/
+Common/HKTDC.WebAPI.UTILS/bin/
+Common/HKTDC.WebAPI.UTILS/obj/
+Common/HKTDC.WebAPI.UTILS/App.config

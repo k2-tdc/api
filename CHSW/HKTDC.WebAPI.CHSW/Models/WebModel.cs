@@ -111,6 +111,7 @@ namespace HKTDC.WebAPI.CHSW.Models
         public string Status { get; set; }
         public string Type { get; set; }
         public string CurrentActor { get; set; }
+        public string SUser { get; set; }
 
         public List<ServiceLevel1> RequestList { get; set; }
     }
@@ -217,6 +218,7 @@ namespace HKTDC.WebAPI.CHSW.Models
         public string Permission { get; set; }
         public string PreparerFullName { get; set; }
         public string CurrentActor { get; set; }
+        public string SUser { get; set; }
     }
     public partial class RequestReview
     {

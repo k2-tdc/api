@@ -20,15 +20,15 @@ namespace HKTDC.WebAPI.Common.Controllers
             this.profileService = new ProfileService();
         }
 
-        [Route("workflow/users/{UserId}/email-profiles")]
+        [Route("workflow/users/{uid}/email-profiles")]
         [HttpGet]
-        public List<NotificationProfileDTO> GetProfileList(string UserId, string profile = null)
+        public List<NotificationProfileDTO> GetProfileList(string uid, string profile = null)
         {
             try
             {
-                if (compareUser(Request, UserId))
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/email-profiles", "HttpGet", getCurrentUser(Request), uid))
                 {
-                    return this.profileService.GetProfileList(UserId, profile);
+                    return this.profileService.GetProfileList(uid, profile);
                 }
                 else
                 {
@@ -37,81 +37,93 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
             catch (Exception ex)
             {
-                var err = this.profileService.ErrorLog(ex, UserId);
+                var err = this.profileService.ErrorLog(ex, getCurrentUser(Request));
                 throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }
 
-        [Route("workflow/users/{UserId}/email-profiles")]
+        [Route("workflow/users/{uid}/email-profiles")]
         [HttpPost]
-        public HttpResponseMessage SaveProfile(string UserId)
+        public HttpResponseMessage SaveProfile(string uid)
         {
             try
             {
-                var s = HttpContext.Current.Request.Form.GetValues("model");
-                string json = s[0];
-                if (string.IsNullOrEmpty(json))
-                    throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
-                dynamic stuff = JsonConvert.DeserializeObject(json);
-                Tuple<bool, string> response = this.profileService.SaveProfile(stuff);
-                if (response.Item1)
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/email-profiles", "HttpPost", getCurrentUser(Request), uid))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"success\":\"1\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    var s = HttpContext.Current.Request.Form.GetValues("model");
+                    string json = s[0];
+                    if (string.IsNullOrEmpty(json))
+                        throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
+                    dynamic stuff = JsonConvert.DeserializeObject(json);
+                    Tuple<bool, string> response = this.profileService.SaveProfile(stuff);
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.InternalServerError, "Fail");
+                    }
+                } else
                 {
-                    return Request.CreateResponse(HttpStatusCode.InternalServerError, "Fail");
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
             {
-                var err = this.profileService.ErrorLog(ex, "");
+                var err = this.profileService.ErrorLog(ex, getCurrentUser(Request));
 
                 throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }
 
-        [Route("workflow/users/{UserId}/email-profiles/{ProfileID:int}")]
+        [Route("workflow/users/{uid}/email-profiles/{profileID:int}")]
         [HttpPut]
-        public HttpResponseMessage UpdateProfile(string UserId, int ProfileID)
+        public HttpResponseMessage UpdateProfile(string uid, int profileID)
         {
             try
             {
-                var s = HttpContext.Current.Request.Form.GetValues("model");
-                string json = s[0];
-                if (string.IsNullOrEmpty(json))
-                    throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
-                dynamic stuff = JsonConvert.DeserializeObject(json);
-                Tuple<bool,string> response = this.profileService.SaveProfile(stuff);
-                if (response.Item1)
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/email-profiles/{profileID}", "HttpPut", getCurrentUser(Request), uid))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"success\":\"1\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    var s = HttpContext.Current.Request.Form.GetValues("model");
+                    string json = s[0];
+                    if (string.IsNullOrEmpty(json))
+                        throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
+                    dynamic stuff = JsonConvert.DeserializeObject(json);
+                    Tuple<bool, string> response = this.profileService.SaveProfile(stuff);
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.InternalServerError, "Fail");
+                    }
+                } else
                 {
-                    return Request.CreateResponse(HttpStatusCode.InternalServerError, "Fail");
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
             {
-                var err = this.profileService.ErrorLog(ex, "");
+                var err = this.profileService.ErrorLog(ex, getCurrentUser(Request));
 
                 throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }
 
-        [Route("workflow/users/{UserId}/email-profiles/{ProfileId:int}")]
+        [Route("workflow/users/{uid}/email-profiles/{profileID:int}")]
         [HttpDelete]
-        public HttpResponseMessage DeleteProfile(string UserId, int ProfileId)
+        public HttpResponseMessage DeleteProfile(string uid, int profileID)
         {
             try
             {
-                if (compareUser(Request, UserId))
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/email-profiles/{profileID}", "HttpDelete", getCurrentUser(Request), uid))
                 {
-                    bool response = this.profileService.DeleteProfile(ProfileId);
+                    bool response = this.profileService.DeleteProfile(profileID);
                     if (response)
                     {
-                        return new HttpResponseMessage { Content = new StringContent("{\"success\":\"1\"}", System.Text.Encoding.UTF8, "application/json") };
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\"}", System.Text.Encoding.UTF8, "application/json") };
                     }
                     else
                     {
@@ -125,21 +137,21 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
             catch (Exception ex)
             {
-                var err = this.profileService.ErrorLog(ex, "");
+                var err = this.profileService.ErrorLog(ex, getCurrentUser(Request));
 
                 throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }
 
-        [Route("workflow/users/{UserId}/email-profiles/{ProfileId:int}")]
+        [Route("workflow/users/{uid}/email-profiles/{profileID:int}")]
         [HttpGet]
-        public NotificationProfileDetailDTO GetProfileDetail(string UserId, int ProfileId)
+        public NotificationProfileDetailDTO GetProfileDetail(string uid, int profileID)
         {
             try
             {
-                if (compareUser(Request, UserId))
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/email-profiles/{profileID}", "HttpGet", getCurrentUser(Request), uid))
                 {
-                    return this.profileService.GetProfileDetail(ProfileId, UserId);
+                    return this.profileService.GetProfileDetail(profileID, uid);
                 }
                 else
                 {
@@ -148,24 +160,24 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
             catch (Exception ex)
             {
-                var err = this.profileService.ErrorLog(ex, UserId);
+                var err = this.profileService.ErrorLog(ex, getCurrentUser(Request));
                 throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }
 
-        [Route("workflow/profile-list")]
-        [HttpGet]
-        public List<UserDTO> GetProfileFieldList()
-        {
-            try
-            {
-                return this.profileService.GetProfileFieldList(this.getCurrentUser(Request));
-            }
-            catch (Exception ex)
-            {
-                var err = this.profileService.ErrorLog(ex, this.getCurrentUser(Request));
-                throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
-            }
-        }
+        //[Route("workflow/profile-list")]
+        //[HttpGet]
+        //public List<UserDTO> GetProfileFieldList()
+        //{
+        //    try
+        //    {
+        //        return this.profileService.GetProfileFieldList(this.getCurrentUser(Request));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        var err = this.profileService.ErrorLog(ex, this.getCurrentUser(Request));
+        //        throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
+        //    }
+        //}
     }
 }

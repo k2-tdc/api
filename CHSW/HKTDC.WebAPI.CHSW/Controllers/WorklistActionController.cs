@@ -346,14 +346,14 @@ namespace HKTDC.WebAPI.CHSW.Controllers
 
         [Route("workflow/users/{UserId}/work-list/computer-app/{SN}")]
         [HttpGet]
-        public List<Review> GetApproveDetails(string UserId, string SN)
+        public List<Review> GetApproveDetails(string UserId, string SN, string SUser = null)
         {
             try
             {
                 if (compareUser(Request, UserId))
                 {
                     string ProsIncId = SN.Substring(0, SN.IndexOf('_'));
-                    return this.approvalTaskService.GetApproveDetails(UserId, ProsIncId, SN);
+                    return this.approvalTaskService.GetApproveDetails(UserId, ProsIncId, SN, SUser);
                 }
                 else
                 {

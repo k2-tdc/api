@@ -26,6 +26,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             {
                 if (compareUser(Request, UserId))
                 {
+                    var watch = System.Diagnostics.Stopwatch.StartNew();
                     string sqlSortValue = "";
                     if (!String.IsNullOrEmpty(sort))
                     {
@@ -37,7 +38,11 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                         }
                         sqlSortValue = String.Join(",", tmpArr.ToArray());
                     }
-                    return this.approvalTaskService.GetApproveList(refid, status, FDate, TDate, UserId, SUser, ProsIncId, offset, limit, sqlSortValue, applicant, applicantEmpNo);
+                    List<ChkFrmStatus> list = this.approvalTaskService.GetApproveList(refid, status, FDate, TDate, UserId, SUser, ProsIncId, offset, limit, sqlSortValue, applicant, applicantEmpNo);
+                    watch.Stop();
+                    var elapsedMs = watch.ElapsedMilliseconds;
+                    this.approvalTaskService.LogTime("ApprovalTask",elapsedMs);
+                    return list;
                 }
                 else
                 {

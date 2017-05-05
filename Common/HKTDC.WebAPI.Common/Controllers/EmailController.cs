@@ -26,7 +26,13 @@ namespace HKTDC.WebAPI.Common.Controllers
         {
             try
             {
-                return this.emailService.GetEmailTemplateList(getCurrentUser(Request), process, step);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/email-templates", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.emailService.GetEmailTemplateList(getCurrentUser(Request), process, step);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -41,20 +47,26 @@ namespace HKTDC.WebAPI.Common.Controllers
         {
             try
             {
-                var s = HttpContext.Current.Request.Form.GetValues("model");
-                string json = s[0];
-                if (string.IsNullOrEmpty(json))
-                    throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
-                dynamic stuff = JsonConvert.DeserializeObject(json);
-                Tuple<bool, string> response = this.emailService.SaveEmailTemplate(getCurrentUser(Request), stuff);
-                if (response.Item1)
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/email-templates", "HttpPost", getCurrentUser(Request), null))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    var s = HttpContext.Current.Request.Form.GetValues("model");
+                    string json = s[0];
+                    if (string.IsNullOrEmpty(json))
+                        throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
+                    dynamic stuff = JsonConvert.DeserializeObject(json);
+                    Tuple<bool, string> response = this.emailService.SaveEmailTemplate(getCurrentUser(Request), stuff);
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        //return Request.CreateResponse(HttpStatusCode.InternalServerError, "Fail");
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    //return Request.CreateResponse(HttpStatusCode.InternalServerError, "Fail");
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\""+response.Item2+"\"}", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -65,26 +77,32 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/email-templates/{TemplateId:int}")]
+        [Route("workflow/email-templates/{templateID:int}")]
         [HttpPut]
-        public HttpResponseMessage UpdateEmailTemplate(int TemplateId)
+        public HttpResponseMessage UpdateEmailTemplate(int templateID)
         {
             try
             {
-                var s = HttpContext.Current.Request.Form.GetValues("model");
-                string json = s[0];
-                if (string.IsNullOrEmpty(json))
-                    throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
-                dynamic stuff = JsonConvert.DeserializeObject(json);
-                Tuple<bool,string> response = this.emailService.SaveEmailTemplate(getCurrentUser(Request), stuff);
-                if (response.Item1)
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/email-templates/{templateID}", "HttpPost", getCurrentUser(Request), null))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    var s = HttpContext.Current.Request.Form.GetValues("model");
+                    string json = s[0];
+                    if (string.IsNullOrEmpty(json))
+                        throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
+                    dynamic stuff = JsonConvert.DeserializeObject(json);
+                    Tuple<bool, string> response = this.emailService.SaveEmailTemplate(getCurrentUser(Request), stuff);
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        //return Request.CreateResponse(HttpStatusCode.InternalServerError, "Fail");
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    //return Request.CreateResponse(HttpStatusCode.InternalServerError, "Fail");
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -101,24 +119,30 @@ namespace HKTDC.WebAPI.Common.Controllers
         {
             try
             {
-                var s = HttpContext.Current.Request.Form.GetValues("model");
-
-                string json = s[0];
-
-                if (string.IsNullOrEmpty(json))
-                    throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
-                dynamic stuff = JsonConvert.DeserializeObject(json);
-                foreach (dynamic item in stuff.data)
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/email-templates/delete", "HttpPost", getCurrentUser(Request), null))
                 {
-                    int TemplateId = item.TemplateId;
-                    Tuple<bool, string> response = this.emailService.DeleteEmailTemplate(getCurrentUser(Request), TemplateId);
-                    if(!response.Item1)
+                    var s = HttpContext.Current.Request.Form.GetValues("model");
+
+                    string json = s[0];
+
+                    if (string.IsNullOrEmpty(json))
+                        throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
+                    dynamic stuff = JsonConvert.DeserializeObject(json);
+                    foreach (dynamic item in stuff.data)
                     {
-                        return new HttpResponseMessage { Content = new StringContent("{\"success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                        int TemplateId = item.TemplateId;
+                        Tuple<bool, string> response = this.emailService.DeleteEmailTemplate(getCurrentUser(Request), TemplateId);
+                        if (!response.Item1)
+                        {
+                            return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                        }
                     }
+
+                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
+                } else
+                {
+                    throw new UnauthorizedAccessException();
                 }
-                
-                return new HttpResponseMessage { Content = new StringContent("{\"success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
             }
             catch (Exception ex)
             {
@@ -128,13 +152,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/email-templates/{TemplateId:int}")]
+        [Route("workflow/email-templates/{templateID:int}")]
         [HttpGet]
-        public EmailTemplateDetailDTO GetEmailTemplateDetail(int TemplateId)
+        public EmailTemplateDetailDTO GetEmailTemplateDetail(int templateID)
         {
             try
             {
-                return this.emailService.GetEmailTemplateDetail(getCurrentUser(Request), TemplateId);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/email-templates/{templateID}", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.emailService.GetEmailTemplateDetail(getCurrentUser(Request), templateID);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {

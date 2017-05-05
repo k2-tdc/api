@@ -12,14 +12,21 @@ namespace HKTDC.WebAPI.Common.Services
     {
         private EntityContext Db = new EntityContext();
 
-        public List<UserPermissionDTO> GetUserPermissionList(string UserId)
+        public List<UserPermissionDTO> GetUserPermissionList(string UserId, string process)
         {
             try
             {
                 if (checkHavePermission(UserId, "ADMIN", "Role Permission"))
                 {
                     List<UserPermissionDTO> list = new List<UserPermissionDTO>();
-                    var perList = Db.Database.SqlQuery<UserPermissionSP>("exec [K2_GetRolePermissionList]").ToList();
+                    SqlParameter[] sqlp = {
+                        new SqlParameter("Process", DBNull.Value)
+                    };
+                    if (!string.IsNullOrEmpty(process))
+                    {
+                        sqlp[0].Value = process;
+                    }
+                    var perList = Db.Database.SqlQuery<UserPermissionSP>("exec [K2_GetRolePermissionList] @Process", sqlp).ToList();
                     foreach (var p in perList)
                     {
                         UserPermissionDTO tmp = new UserPermissionDTO();
@@ -30,7 +37,8 @@ namespace HKTDC.WebAPI.Common.Services
                         list.Add(tmp);
                     }
                     return list;
-                } else
+                }
+                else
                 {
                     throw new UnauthorizedAccessException();
                 }
@@ -74,7 +82,7 @@ namespace HKTDC.WebAPI.Common.Services
             return Tuple.Create(success, msg);
         }
 
-        public List<UserPermissionMenuItemDTO> GetMenuItem(int ProcessId, string UserId)
+        public List<UserPermissionMenuItemDTO> GetMenuItem(string process, string UserId)
         {
             try
             {
@@ -83,7 +91,7 @@ namespace HKTDC.WebAPI.Common.Services
                     var list = (from a in Db.SPAMenuMaster
                                 join b in Db.SPAMenuGroup on a.SPAMenuMasterGUID equals b.SPAMenuMasterGUID
                                 join c in Db.SPAMenuItem on b.SPAMenuGroupGUID equals c.SPAMenuGroupGUID
-                                where a.ProcessID == ProcessId
+                                where a.Name == process
                                 select new UserPermissionMenuItemDTO
                                 {
                                     MenuItemGUID = c.SPAMenuItemGUID,

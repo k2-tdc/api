@@ -20,13 +20,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             this.userRoleService = new UserRoleService();
         }
 
-        [Route("workflow/user-role")]
+        [Route("workflow/user-roles")]
         [HttpGet]
         public List<UserRoleDTO> GetUserRoleList(string process = null)
         {
             try
             {
-                return this.userRoleService.GetUserRoleList(process);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/user-roles", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.userRoleService.GetUserRoleList(getCurrentUser(Request), process);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -35,25 +41,31 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/user-role")]
+        [Route("workflow/user-roles")]
         [HttpPost]
         public HttpResponseMessage SaveUserRole()
         {
             try
             {
-                var s = HttpContext.Current.Request.Form.GetValues("model");
-                string json = s[0];
-                if (string.IsNullOrEmpty(json))
-                    throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
-                dynamic stuff = JsonConvert.DeserializeObject(json);
-                Tuple<bool, string> response = this.userRoleService.SaveUserRole(stuff);
-                if (response.Item1)
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/user-roles", "HttpPost", getCurrentUser(Request), null))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\""+response.Item2+"\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    var s = HttpContext.Current.Request.Form.GetValues("model");
+                    string json = s[0];
+                    if (string.IsNullOrEmpty(json))
+                        throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
+                    dynamic stuff = JsonConvert.DeserializeObject(json);
+                    Tuple<bool, string> response = this.userRoleService.SaveUserRole(stuff);
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -64,25 +76,31 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/user-role/{RoleId}")]
+        [Route("workflow/user-roles/{RoleID}")]
         [HttpPut]
-        public HttpResponseMessage UpdateUserRole(string RoleId)
+        public HttpResponseMessage UpdateUserRole(string RoleID)
         {
             try
             {
-                var s = HttpContext.Current.Request.Form.GetValues("model");
-                string json = s[0];
-                if (string.IsNullOrEmpty(json))
-                    throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
-                dynamic stuff = JsonConvert.DeserializeObject(json);
-                Tuple<bool, string> response = this.userRoleService.SaveUserRole(stuff);
-                if (response.Item1)
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/user-roles/{RoleID}", "HttpPut", getCurrentUser(Request), null))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    var s = HttpContext.Current.Request.Form.GetValues("model");
+                    string json = s[0];
+                    if (string.IsNullOrEmpty(json))
+                        throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
+                    dynamic stuff = JsonConvert.DeserializeObject(json);
+                    Tuple<bool, string> response = this.userRoleService.SaveUserRole(stuff);
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -93,20 +111,26 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/user-role/{RoleId}")]
+        [Route("workflow/user-roles/{RoleID}")]
         [HttpDelete]
-        public HttpResponseMessage DeleteUserRole(string RoleId)
+        public HttpResponseMessage DeleteUserRole(string RoleID)
         {
             try
             {
-                Tuple<bool, string> response = this.userRoleService.DeleteUserRole(getCurrentUser(Request), RoleId);
-                if (response.Item1)
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/user-roles/{RoleID}", "HttpDelete", getCurrentUser(Request), null))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    Tuple<bool, string> response = this.userRoleService.DeleteUserRole(getCurrentUser(Request), RoleID);
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -117,13 +141,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/user-role/{RoleId}")]
+        [Route("workflow/user-roles/{RoleID}")]
         [HttpGet]
-        public UserRoleDetailDTO GetUserRoleDetail(string RoleId)
+        public UserRoleDetailDTO GetUserRoleDetail(string RoleID)
         {
             try
             {
-                return this.userRoleService.GetUserRoleDetail(RoleId);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/user-roles/{RoleID}", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.userRoleService.GetUserRoleDetail(getCurrentUser(Request), RoleID);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -132,25 +162,31 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/user-role-member")]
+        [Route("workflow/user-role-members")]
         [HttpPost]
         public HttpResponseMessage SaveUserRoleMember()
         {
             try
             {
-                var s = HttpContext.Current.Request.Form.GetValues("model");
-                string json = s[0];
-                if (string.IsNullOrEmpty(json))
-                    throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
-                dynamic stuff = JsonConvert.DeserializeObject(json);
-                Tuple<bool, string> response = this.userRoleService.SaveUserRoleMember(stuff, getCurrentUser(Request));
-                if (response.Item1)
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/user-role-members", "HttpPost", getCurrentUser(Request), null))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    var s = HttpContext.Current.Request.Form.GetValues("model");
+                    string json = s[0];
+                    if (string.IsNullOrEmpty(json))
+                        throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
+                    dynamic stuff = JsonConvert.DeserializeObject(json);
+                    Tuple<bool, string> response = this.userRoleService.SaveUserRoleMember(stuff, getCurrentUser(Request));
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -161,25 +197,31 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/user-role-member/{RoleMemberId}")]
+        [Route("workflow/user-role-members/{RoleMemberID}")]
         [HttpPut]
-        public HttpResponseMessage UpdateUserRoleMember(string RoleMemberId)
+        public HttpResponseMessage UpdateUserRoleMember(string RoleMemberID)
         {
             try
             {
-                var s = HttpContext.Current.Request.Form.GetValues("model");
-                string json = s[0];
-                if (string.IsNullOrEmpty(json))
-                    throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
-                dynamic stuff = JsonConvert.DeserializeObject(json);
-                Tuple<bool, string> response = this.userRoleService.UpdateUserRoleMember(stuff, getCurrentUser(Request));
-                if (response.Item1)
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/user-role-members/{RoleMemberID}", "HttpPut", getCurrentUser(Request), null))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    var s = HttpContext.Current.Request.Form.GetValues("model");
+                    string json = s[0];
+                    if (string.IsNullOrEmpty(json))
+                        throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
+                    dynamic stuff = JsonConvert.DeserializeObject(json);
+                    Tuple<bool, string> response = this.userRoleService.UpdateUserRoleMember(stuff, getCurrentUser(Request));
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -190,20 +232,26 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/user-role-member/{RoleMemberId}")]
+        [Route("workflow/user-role-members/{RoleMemberID}")]
         [HttpDelete]
-        public HttpResponseMessage DeleteUserRoleMember(string RoleMemberId)
+        public HttpResponseMessage DeleteUserRoleMember(string RoleMemberID)
         {
             try
             {
-                Tuple<bool, string> response = this.userRoleService.DeleteUserRoleMember(getCurrentUser(Request), RoleMemberId);
-                if (response.Item1)
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/user-role-members/{RoleMemberID}", "HttpDelete", getCurrentUser(Request), null))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    Tuple<bool, string> response = this.userRoleService.DeleteUserRoleMember(getCurrentUser(Request), RoleMemberID);
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             } catch (Exception ex)
             {
@@ -211,13 +259,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/user-role-member/{RoleMemberId}")]
+        [Route("workflow/user-role-members/{RoleMemberID}")]
         [HttpGet]
-        public UserRoleMemberDetailDTO GetUserRoleMemberDetail(string RoleMemberId)
+        public UserRoleMemberDetailDTO GetUserRoleMemberDetail(string RoleMemberID)
         {
             try
             {
-                return this.userRoleService.GetUserRoleMemberDetail(RoleMemberId);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/user-role-members/{RoleMemberID}", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.userRoleService.GetUserRoleMemberDetail(RoleMemberID);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {

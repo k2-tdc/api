@@ -20,13 +20,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             this.userPermissionService = new UserPermissionService();
         }
 
-        [Route("workflow/role-permission")]
+        [Route("workflow/role-permissions")]
         [HttpGet]
-        public List<UserPermissionDTO> GetUserPermissionList()
+        public List<UserPermissionDTO> GetUserPermissionList(string process = null)
         {
             try
             {
-                return this.userPermissionService.GetUserPermissionList(getCurrentUser(Request));
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/role-permissions", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.userPermissionService.GetUserPermissionList(getCurrentUser(Request), process);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -35,9 +41,9 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/role-permission")]
+        [Route("workflow/role-permissions/{PermissionID}")]
         [HttpDelete]
-        public HttpResponseMessage DeleteUserPermission(string RolePermissionGUID)
+        public HttpResponseMessage DeleteUserPermission(string PermissionID)
         {
             try
             {
@@ -54,20 +60,26 @@ namespace HKTDC.WebAPI.Common.Controllers
                 //        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
                 //    }
                 //}
-                if (!string.IsNullOrEmpty(RolePermissionGUID))
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/role-permission/{PermissionID}", "HttpDelete", getCurrentUser(Request), null))
                 {
-                    string[] perGUID = RolePermissionGUID.Split(',');
-                    foreach (var usrper in perGUID)
+                    if (!string.IsNullOrEmpty(PermissionID))
                     {
-                        Tuple<bool, string> response = this.userPermissionService.DeleteUserPermission(getCurrentUser(Request), usrper.ToString());
-                        if (!response.Item1)
+                        string[] perGUID = PermissionID.Split(',');
+                        foreach (var usrper in perGUID)
                         {
-                            return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                            Tuple<bool, string> response = this.userPermissionService.DeleteUserPermission(getCurrentUser(Request), usrper.ToString());
+                            if (!response.Item1)
+                            {
+                                return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                            }
                         }
                     }
+
+                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
+                } else
+                {
+                    throw new UnauthorizedAccessException();
                 }
-
-                return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
             }
             catch (Exception ex)
             {
@@ -76,13 +88,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/role-permission/menuitem/{ProcessId:int}")]
+        [Route("workflow/permissions")]
         [HttpGet]
-        public List<UserPermissionMenuItemDTO> GetMenuItem(int ProcessId)
+        public List<UserPermissionMenuItemDTO> GetMenuItem(string process)
         {
             try
             {
-                return this.userPermissionService.GetMenuItem(ProcessId, getCurrentUser(Request));
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/permissions", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.userPermissionService.GetMenuItem(process, getCurrentUser(Request));
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -91,40 +109,46 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/role-permission/user-role/{ProcessId:int}")]
-        [HttpGet]
-        public List<UserRoleDTO> GetUserRole(int ProcessId)
-        {
-            try
-            {
-                return this.userPermissionService.GetUserRole(ProcessId, getCurrentUser(Request));
-            }
-            catch (Exception ex)
-            {
-                var err = this.userPermissionService.ErrorLog(ex, getCurrentUser(Request));
-                throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
-            }
-        }
+        //[Route("workflow/role-permission/user-role/{ProcessId:int}")]
+        //[HttpGet]
+        //public List<UserRoleDTO> GetUserRole(int ProcessId)
+        //{
+        //    try
+        //    {
+        //        return this.userPermissionService.GetUserRole(ProcessId, getCurrentUser(Request));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        var err = this.userPermissionService.ErrorLog(ex, getCurrentUser(Request));
+        //        throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
+        //    }
+        //}
 
-        [Route("workflow/role-permission")]
+        [Route("workflow/role-permissions")]
         [HttpPost]
         public HttpResponseMessage SaveUserPermission()
         {
             try
             {
-                var s = HttpContext.Current.Request.Form.GetValues("model");
-                string json = s[0];
-                if (string.IsNullOrEmpty(json))
-                    throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
-                dynamic stuff = JsonConvert.DeserializeObject(json);
-                Tuple<bool, string> response = this.userPermissionService.SaveUserPermission(stuff, getCurrentUser(Request));
-                if (response.Item1)
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/role-permissions", "HttpPost", getCurrentUser(Request), null))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    var s = HttpContext.Current.Request.Form.GetValues("model");
+                    string json = s[0];
+                    if (string.IsNullOrEmpty(json))
+                        throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
+                    dynamic stuff = JsonConvert.DeserializeObject(json);
+                    Tuple<bool, string> response = this.userPermissionService.SaveUserPermission(stuff, getCurrentUser(Request));
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -134,25 +158,31 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/role-permission")]
+        [Route("workflow/role-permissions")]
         [HttpPut]
         public HttpResponseMessage UpdateUserPermission()
         {
             try
             {
-                var s = HttpContext.Current.Request.Form.GetValues("model");
-                string json = s[0];
-                if (string.IsNullOrEmpty(json))
-                    throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
-                dynamic stuff = JsonConvert.DeserializeObject(json);
-                Tuple<bool, string> response = this.userPermissionService.SaveUserPermission(stuff, getCurrentUser(Request));
-                if (response.Item1)
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/role-permissions", "HttpPut", getCurrentUser(Request), null))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    var s = HttpContext.Current.Request.Form.GetValues("model");
+                    string json = s[0];
+                    if (string.IsNullOrEmpty(json))
+                        throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
+                    dynamic stuff = JsonConvert.DeserializeObject(json);
+                    Tuple<bool, string> response = this.userPermissionService.SaveUserPermission(stuff, getCurrentUser(Request));
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -162,13 +192,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/role-permission-detail")]
+        [Route("workflow/role-permissions/{PermissionID}")]
         [HttpGet]
-        public UserPermissionDetailDTO GetRolePermissionDetail(string RolePermissionGUID)
+        public UserPermissionDetailDTO GetRolePermissionDetail(string PermissionID)
         {
             try
             {
-                return this.userPermissionService.GetRolePermissionDetail(RolePermissionGUID, getCurrentUser(Request));
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/role-permissions/{PermissionID}", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.userPermissionService.GetRolePermissionDetail(PermissionID, getCurrentUser(Request));
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {

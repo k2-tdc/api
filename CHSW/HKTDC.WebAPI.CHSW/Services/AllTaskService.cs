@@ -143,6 +143,7 @@ namespace HKTDC.WebAPI.CHSW.Services
                                 status.ITSApproverFullName = request.ITSApproverFullName;
                                 status.PreparerFNAME = request.PreparerFullName;
                                 status.CurrentActor = request.CurrentActor;
+                                status.SUser = request.SUser;
 
                                 //if (!string.IsNullOrEmpty(request.ProcInstID))
                                 //{

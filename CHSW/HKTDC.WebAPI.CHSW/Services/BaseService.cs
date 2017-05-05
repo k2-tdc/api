@@ -98,6 +98,17 @@ namespace HKTDC.WebAPI.CHSW.Services
             Db.SaveChanges();
         }
 
+        public void LogTime(string place, long time)
+        {
+            Models.ErrorLog Errthrow = new Models.ErrorLog();
+            Errthrow.LogType = "Debug";
+            Errthrow.ErrorMessage = time.ToString();
+            Errthrow.StackTrace = place;
+            Errthrow.LogCreatedDateTime = DateTime.Now;
+            Db.ErrorLogs.Add(Errthrow);
+            Db.SaveChanges();
+        }
+
         public bool checkPagePermission(string pageName, string userId)
         {
             bool havePermission = false;

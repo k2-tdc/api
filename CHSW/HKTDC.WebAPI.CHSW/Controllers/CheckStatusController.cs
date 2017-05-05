@@ -115,6 +115,7 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             {
                 if (compareUser(Request, UserId))
                 {
+                    var watch = System.Diagnostics.Stopwatch.StartNew();
                     string sqlSortValue = "";
                     if (!String.IsNullOrEmpty(sort))
                     {
@@ -126,7 +127,11 @@ namespace HKTDC.WebAPI.CHSW.Controllers
                         }
                         sqlSortValue = String.Join(",", tmpArr.ToArray());
                     }
-                    return this.checkStatusService.GetRequestList(refid, status, FDate, TDate, applicant, UserId, "CheckStatus", applicantEmpNo, offset, limit, sqlSortValue);
+                    List<ChkFrmStatus> list = this.checkStatusService.GetRequestList(refid, status, FDate, TDate, applicant, UserId, "CheckStatus", applicantEmpNo, offset, limit, sqlSortValue);
+                    watch.Stop();
+                    var elapsedMs = watch.ElapsedMilliseconds;
+                    this.checkStatusService.LogTime("CheckStatus", elapsedMs);
+                    return list;
                 }
                 else
                 {

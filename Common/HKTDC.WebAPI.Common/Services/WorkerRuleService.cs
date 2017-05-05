@@ -40,23 +40,30 @@ namespace HKTDC.WebAPI.Common.Services
             {
                 try
                 {
-                    var list = (from a in Db.ProcessWorkerRule
-                                join b in Db.ProcessList on a.ProcessID equals b.ProcessID into pa
-                                from b in pa.DefaultIfEmpty()
-                                select new WorkerRuleDTO
-                                {
-                                    WorkerRuleId = a.WorkerRuleID,
-                                    Code = a.RuleCode,
-                                    Worker = a.RuleName,
-                                    Summary = a.Summary,
-                                    Score = a.Score,
-                                    ProcessName = b.ProcessName
-                                });
-                    if(!string.IsNullOrEmpty(process))
+                    if (!string.IsNullOrEmpty(process))
                     {
-                        list = list.Where(p => p.ProcessName == process);
+                        var list = (from a in Db.ProcessWorkerRule
+                                    join b in Db.ProcessList on a.ProcessID equals b.ProcessID into pa
+                                    from b in pa.DefaultIfEmpty()
+                                    where b.ProcessName == process
+                                    select new WorkerRuleDTO
+                                    {
+                                        WorkerRuleId = a.WorkerRuleID,
+                                        Code = a.RuleCode,
+                                        Worker = a.RuleName,
+                                        Summary = a.Summary,
+                                        Score = a.Score,
+                                        ProcessName = b.ProcessName
+                                    });
+                        //if (!string.IsNullOrEmpty(process))
+                        //{
+                        //    list = list.Where(p => p.ProcessName == process);
+                        //}
+                        return list.ToList();
+                    } else
+                    {
+                        return new List<WorkerRuleDTO>();
                     }
-                    return list.ToList();
                 }
                 catch (Exception ex)
                 {
@@ -203,14 +210,14 @@ namespace HKTDC.WebAPI.Common.Services
             }
         }
 
-        public List<WorkerRuleRuleDTO> GetWorkerRuleRule(string Code)
+        public List<WorkerRuleRuleDTO> GetWorkerRuleRule(int WorkerRuleId)
         {
             //if (checkHavePermission(UserId, "ADMIN", "Worker Rule"))
             //{
                 try
                 {
                     List<WorkerRuleRuleDTO> list = new List<WorkerRuleRuleDTO>();
-                    string workerType = Db.ProcessWorkerRule.Where(p => p.RuleCode == Code).Select(p => p.WorkerType).FirstOrDefault();
+                    string workerType = Db.ProcessWorkerRule.Where(p => p.WorkerRuleID == WorkerRuleId).Select(p => p.WorkerType).FirstOrDefault();
                     SqlParameter[] sqlp = { new SqlParameter("WorkerType", workerType) };
                     list = Db.Database.SqlQuery<WorkerRuleRuleDTO>("exec [pProcessWorkerRuleTemplateGet] @WorkerType", sqlp).ToList();
                     return list;
@@ -253,12 +260,12 @@ namespace HKTDC.WebAPI.Common.Services
             }
         }
 
-        public List<WorkerRulePriorityDTO> GetWorkerRulePriority(string Code)
+        public List<WorkerRulePriorityDTO> GetWorkerRulePriority(int WorkerRuleId)
         { 
             try
             {
                 List<WorkerRulePriorityDTO> list = new List<WorkerRulePriorityDTO>();
-                string workerType = Db.ProcessWorkerRule.Where(p => p.RuleCode == Code).Select(p => p.WorkerType).FirstOrDefault();
+                string workerType = Db.ProcessWorkerRule.Where(p => p.WorkerRuleID == WorkerRuleId).Select(p => p.WorkerType).FirstOrDefault();
                 SqlParameter[] sqlp = { new SqlParameter("WorkerType", workerType) };
                 list = Db.Database.SqlQuery<WorkerRulePriorityDTO>("exec [pProcessWorkerRulePriorityGet] @WorkerType", sqlp).ToList();
                 return list;
@@ -283,12 +290,12 @@ namespace HKTDC.WebAPI.Common.Services
             }
         }
 
-        public List<WorkerRuleCriteriaDTO> GetWorkerRuleCriteria(string Code)
+        public List<WorkerRuleCriteriaDTO> GetWorkerRuleCriteria(int WorkerRuleId)
         {
             try
             {
                 List<WorkerRuleCriteriaDTO> list = new List<WorkerRuleCriteriaDTO>();
-                string workerType = Db.ProcessWorkerRule.Where(p => p.RuleCode == Code).Select(p => p.WorkerType).FirstOrDefault();
+                string workerType = Db.ProcessWorkerRule.Where(p => p.WorkerRuleID == WorkerRuleId).Select(p => p.WorkerType).FirstOrDefault();
                 SqlParameter[] sqlp = { new SqlParameter("WorkerType", workerType) };
                 list = Db.Database.SqlQuery<WorkerRuleCriteriaDTO>("exec [pProcessWorkerRuleOtherCriteriaGet] @WorkerType", sqlp).ToList();
                 return list;

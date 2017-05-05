@@ -29,7 +29,13 @@ namespace HKTDC.WebAPI.Common.Controllers
         {
             try
             {
-                return this.commonService.GetReferenceId(getCurrentUser(Request));
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/applications", "HttpPost", getCurrentUser(Request), null))
+                {
+                    return this.commonService.GetReferenceId(getCurrentUser(Request));
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -44,7 +50,13 @@ namespace HKTDC.WebAPI.Common.Controllers
         {
             try
             {
-                return this.commonService.getDeptList(type);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/departments", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.commonService.getDeptList(type);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             } catch (Exception ex)
             {
                 var err = this.commonService.ErrorLog(ex, getCurrentUser(Request));
@@ -58,7 +70,13 @@ namespace HKTDC.WebAPI.Common.Controllers
         {
             try
             {
-                return this.commonService.GetEmailProcessStepList(process, activityGroupType);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/activity-groups", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.commonService.GetEmailProcessStepList(process, activityGroupType);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -75,19 +93,25 @@ namespace HKTDC.WebAPI.Common.Controllers
             string result = "Failed";
             try
             {
-                HttpRequestMessage request = this.Request;
-                if (!request.Content.IsMimeMultipartContent())
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/attachments", "HttpPost", getCurrentUser(Request), refid))
                 {
-                    //throws when request without file attachment
-                    throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+                    HttpRequestMessage request = this.Request;
+                    if (!request.Content.IsMimeMultipartContent())
+                    {
+                        //throws when request without file attachment
+                        throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+                    }
+
+                    result = this.commonService.UploadFiles(HttpContext.Current.Request, getCurrentUser(Request), refid, process, AttachmentType);
+
+                    if (result == "Failed")
+                        return Request.CreateResponse(HttpStatusCode.InternalServerError, "Unable to Upload file(s)"); //throws when error in SP
+                    else
+                        return Request.CreateResponse(HttpStatusCode.OK, result);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
                 }
-
-                result = this.commonService.UploadFiles(HttpContext.Current.Request, getCurrentUser(Request), refid, process, AttachmentType);
-
-                if (result == "Failed")
-                    return Request.CreateResponse(HttpStatusCode.InternalServerError, "Unable to Upload file(s)"); //throws when error in SP
-                else
-                    return Request.CreateResponse(HttpStatusCode.OK, result);
             }
             catch (Exception ex)
             {
@@ -102,11 +126,13 @@ namespace HKTDC.WebAPI.Common.Controllers
         {
             try
             {
-                var headerUserID = getCurrentUser(Request);
-                if (!String.IsNullOrEmpty(headerUserID))
+                //var headerUserID = getCurrentUser(Request);
+                //if (!String.IsNullOrEmpty(headerUserID))
+                //{
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/attachments", "HttpGet", getCurrentUser(Request), guid))
                 {
                     HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
-                    var attachmentRecord = this.commonService.GetAttachment(process, new Guid(guid), headerUserID);
+                    var attachmentRecord = this.commonService.GetAttachment(process, new Guid(guid), getCurrentUser(Request));
                     if (attachmentRecord != null)
                     {
                         string Dircur = attachmentRecord.UNCPath + "/" + attachmentRecord.FormID.ToString() + (!string.IsNullOrEmpty(attachmentRecord.AttachmentType) ? ("/" + attachmentRecord.AttachmentType) : ""); //UNC Path From Web Config
@@ -127,11 +153,15 @@ namespace HKTDC.WebAPI.Common.Controllers
                     {
                         return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Unable to get the attachment");
                     }
-                }
-                else
+                } else
                 {
-                    return Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unauthorized request.");
+                    throw new UnauthorizedAccessException();
                 }
+                //}
+                //else
+                //{
+                //    return Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unauthorized request.");
+                //}
             }
             catch (Exception ex)
             {
@@ -163,8 +193,14 @@ namespace HKTDC.WebAPI.Common.Controllers
                 //    this.requestService.DeleteFile((item.GUID).ToString());
                 //}
                 #endregion
-                this.commonService.DeleteFile(guid, process);
-                return Request.CreateResponse(HttpStatusCode.OK, "Success");
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/attachments", "HttpDelete", getCurrentUser(Request), guid))
+                {
+                    this.commonService.DeleteFile(guid, process);
+                    return Request.CreateResponse(HttpStatusCode.OK, "Success");
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -179,7 +215,13 @@ namespace HKTDC.WebAPI.Common.Controllers
         {
             try
             {
-                return this.commonService.GetAttachmentSetting(process);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/attachments/config", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.commonService.GetAttachmentSetting(process);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -194,7 +236,13 @@ namespace HKTDC.WebAPI.Common.Controllers
         {
             try
             {
-                return this.commonService.getAllUser(getCurrentUser(Request));
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.commonService.getAllUser(getCurrentUser(Request));
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -204,20 +252,20 @@ namespace HKTDC.WebAPI.Common.Controllers
         }
 
         // Get Selected Applicant Details Dept,Title 
-        [Route("workflow/users/{Applicant}")]
+        [Route("workflow/users/{uid}")]
         [HttpGet]
-        public ApplicantDetails GetApplicant(string Applicant)
+        public ApplicantDetails GetApplicant(string uid)
         {
             try
             {
-                //if (compareUser(Request, UserId))
-                //{
-                    return this.commonService.GetApplicantDetails(Applicant);
-                //}
-                //else
-                //{
-                //    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
-                //}
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}", "HttpGet", getCurrentUser(Request), uid))
+                {
+                    return this.commonService.GetApplicantDetails(uid);
+                }
+                else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -226,36 +274,37 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/users/{UserId}/workers")]
+        [Route("workflow/users/{uid}/workers")]
         [HttpGet]
-        public List<Applicant> GetApprover(string UserId, string rule)
+        public List<Applicant> GetApprover(string uid, string rule)
         {
             try
             {
-                //if (compareUser(Request, UserId) || compareUser(Request, WorkId))
-                //{
-                    return this.commonService.GetAllEmployeeDetails(rule, null, UserId, null);
-                //}
-                //else
-                //{
-                //    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
-                //}
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/workers", "HttpGet", getCurrentUser(Request), uid))
+                {
+                    return this.commonService.GetAllEmployeeDetails(rule, null, uid, null);
+                }
+                else
+                {
+                    //throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
-                var err = this.commonService.ErrorLog(ex, UserId);
+                var err = this.commonService.ErrorLog(ex, getCurrentUser(Request));
                 throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }
 
 
-        [Route("workflow/users/{UserId}/applications")]
+        [Route("workflow/users/{uid}/applications")]
         [HttpGet]
-        public List<ProcessListDTO> GetProcessList(string UserId)
+        public List<ProcessListDTO> GetProcessList(string uid)
         {
             try
             {
-                if (compareUser(Request, UserId))
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/applications", "HttpGet", getCurrentUser(Request), uid))
                 {
                     return this.commonService.GetProcessList();
                 }
@@ -266,20 +315,20 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
             catch (Exception ex)
             {
-                var err = this.commonService.ErrorLog(ex, UserId);
+                var err = this.commonService.ErrorLog(ex, getCurrentUser(Request));
                 throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }
 
-        [Route("workflow/users/{UserId}/work-list-count")]
+        [Route("workflow/users/{uid}/work-list-count")]
         [HttpGet]
-        public HttpResponseMessage GetWorklistCount(string UserId, string process = null)
+        public HttpResponseMessage GetWorklistCount(string uid, string process = null)
         {
             try
             {
-                if (compareUser(Request, UserId))
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/work-list-count", "HttpGet", getCurrentUser(Request), uid))
                 {
-                    Tuple<bool, string> response = this.commonService.GetWorklistCount(UserId, process);
+                    Tuple<bool, string> response = this.commonService.GetWorklistCount(uid, process);
                     if (response.Item1)
                     {
                         return new HttpResponseMessage { Content = new StringContent(response.Item2, System.Text.Encoding.UTF8, "application/json") };
@@ -344,18 +393,23 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/users/{UserId}/applications/authorized-pages")]
+        [Route("workflow/users/{uid}/applications/authorized-pages")]
         [HttpGet]
-        public Menus GetMenuItem(string UserId, string process, string page = null)
+        public Menus GetMenuItem(string uid, string process, string page = null)
         {
             try
             {
-                if (compareUser(Request, UserId))
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/applications/authorized-pages", "HttpGet", getCurrentUser(Request), uid))
                 {
+                    //var watch = System.Diagnostics.Stopwatch.StartNew();
                     ProcessList pList = this.commonService.GetProcess(process.ToUpper());
                     if (pList != null)
                     {
-                        return this.commonService.GetMenuItem(UserId, process, page);
+                        Menus menu = this.commonService.GetMenuItem(uid, process, page);
+                        //watch.Stop();
+                        //var elapsedMs = watch.ElapsedMilliseconds;
+                        //this.commonService.LogTime("Menu - " + page, elapsedMs);
+                        return menu;
                     } else
                     {
                         throw new ProcessNotFoundException();
@@ -368,33 +422,33 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
             catch (Exception ex)
             {
-                var err = this.commonService.ErrorLog(ex, UserId);
+                var err = this.commonService.ErrorLog(ex, getCurrentUser(Request));
                 throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }
 
-        [Route("workflow/users/{UserId}/applications/{ProcessName}/process-list")]
-        [HttpGet]
-        public List<ProcessListDTO> GetProcessListForWorkerRule(string UserId, string ProcessName)
-        {
-            try
-            {
-                //if (compareUser(Request, UserId))
-                //{
-                return this.commonService.GetProcessListForWorkerRule(UserId, ProcessName);
-                //return null;
-                //}
-                //else
-                //{
-                //throw new UnauthorizedAccessException();
-                //}
-            }
-            catch (Exception ex)
-            {
-                var err = this.commonService.ErrorLog(ex, UserId);
-                throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
-            }
-        }
+        //[Route("workflow/users/{UserId}/applications/{ProcessName}/process-list")]
+        //[HttpGet]
+        //public List<ProcessListDTO> GetProcessListForWorkerRule(string UserId, string ProcessName)
+        //{
+        //    try
+        //    {
+        //        //if (compareUser(Request, UserId))
+        //        //{
+        //        return this.commonService.GetProcessListForWorkerRule(UserId, ProcessName);
+        //        //return null;
+        //        //}
+        //        //else
+        //        //{
+        //        //throw new UnauthorizedAccessException();
+        //        //}
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        var err = this.commonService.ErrorLog(ex, UserId);
+        //        throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
+        //    }
+        //}
         
         [Route("workflow/workers/{WorkId}/owners")]
         [HttpGet]
@@ -402,13 +456,14 @@ namespace HKTDC.WebAPI.Common.Controllers
         {
             try
             {
-                if (compareUser(Request, UserId) || compareUser(Request, WorkId))
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/workers/{WorkId}/owners", "HttpGet", getCurrentUser(Request), WorkId))
                 {
                     return this.commonService.GetAllEmployeeDetails(rule, WorkId, UserId, null);
                 }
                 else
                 {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    //throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -418,13 +473,13 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/users/{UserId}/work-list")]
+        [Route("workflow/users/{uid}/work-list")]
         [HttpGet]
-        public List<ChkFrmStatus> GetWorklist(string UserId, int offset = 0, int limit = 99999, string sort = null, string refid = null, string status = null, [FromUri(Name = "start-date")] string FDate = null, [FromUri(Name = "end-date")] string TDate = null, string ProsIncId = null, string process = null)
+        public List<ChkFrmStatus> GetWorklist(string uid, int offset = 0, int limit = 99999, string sort = null, string refid = null, string status = null, [FromUri(Name = "start-date")] string FDate = null, [FromUri(Name = "end-date")] string TDate = null, string ProsIncId = null, string process = null)
         {
             try
             {
-                if (compareUser(Request, UserId))
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/work-list", "HttpGet", getCurrentUser(Request), uid))
                 {
                     string sqlSortValue = "";
                     if (!String.IsNullOrEmpty(sort))
@@ -437,16 +492,17 @@ namespace HKTDC.WebAPI.Common.Controllers
                         }
                         sqlSortValue = String.Join(",", tmpArr.ToArray());
                     }
-                    return this.commonService.GetWorklist(refid, status, FDate, TDate, UserId, ProsIncId, offset, limit, sqlSortValue, process);
+                    return this.commonService.GetWorklist(refid, status, FDate, TDate, uid, ProsIncId, offset, limit, sqlSortValue, process);
                 }
                 else
                 {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    //throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Unable to get data"));
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
             {
-                var err = this.commonService.ErrorLog(ex, UserId);
+                var err = this.commonService.ErrorLog(ex, getCurrentUser(Request));
                 throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }

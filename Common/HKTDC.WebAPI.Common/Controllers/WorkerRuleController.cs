@@ -23,13 +23,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             this.workerRuleService = new WorkerRuleService();
         }
 
-        [Route("workflow/worker-rule/process")]
+        [Route("workflow/worker-rules/process")]
         [HttpGet]
         public List<ProcessListDTO> GetProcessList(string MenuId)
         {
             try
             {
-               return this.workerRuleService.GetProcessList(getCurrentUser(Request), MenuId);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rules/process", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.workerRuleService.GetProcessList(getCurrentUser(Request), MenuId);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -38,13 +44,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule")]
+        [Route("workflow/worker-rules")]
         [HttpGet]
         public List<WorkerRuleDTO> GetWorkerRuleList(string process=null)
         {
             try
             {
-                return this.workerRuleService.GetWorkerRuleList(getCurrentUser(Request), process);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rules", "HttpGet", getCurrentUser(Request), process))
+                {
+                    return this.workerRuleService.GetWorkerRuleList(getCurrentUser(Request), process);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -53,7 +65,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule")]
+        [Route("workflow/worker-rules")]
         [HttpPost]
         public HttpResponseMessage SaveWorkerRule()
         {
@@ -64,14 +76,23 @@ namespace HKTDC.WebAPI.Common.Controllers
                 if (string.IsNullOrEmpty(json))
                     throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
                 dynamic stuff = JsonConvert.DeserializeObject(json);
-                Tuple<bool, string> response = this.workerRuleService.SaveWorkerRule(getCurrentUser(Request), stuff);
-                if (response.Item1)
+                int? ProcessId;
+                ProcessId = stuff.ProcessId;
+
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rules", "HttpPost", getCurrentUser(Request), ProcessId.ToString()))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    Tuple<bool, string> response = this.workerRuleService.SaveWorkerRule(getCurrentUser(Request), stuff);
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -82,9 +103,9 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule")]
+        [Route("workflow/worker-rules/{WorkerRuleId:int}")]
         [HttpPut]
-        public HttpResponseMessage UpdateWorkerRule()
+        public HttpResponseMessage UpdateWorkerRule(int WorkerRuleId)
         {
             try
             {
@@ -93,14 +114,23 @@ namespace HKTDC.WebAPI.Common.Controllers
                 if (string.IsNullOrEmpty(json))
                     throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
                 dynamic stuff = JsonConvert.DeserializeObject(json);
-                Tuple<bool, string> response = this.workerRuleService.SaveWorkerRule(getCurrentUser(Request), stuff);
-                if (response.Item1)
+                int? ProcessId;
+                ProcessId = stuff.ProcessId;
+
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rules/{WorkerRuleId}", "HttpPut", getCurrentUser(Request), ProcessId.ToString()))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    Tuple<bool, string> response = this.workerRuleService.SaveWorkerRule(getCurrentUser(Request), stuff);
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -111,20 +141,26 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule/{WorkerRuleId:int}")]
+        [Route("workflow/worker-rules/{WorkerRuleId:int}")]
         [HttpDelete]
         public HttpResponseMessage DeleteWorkerRule(int WorkerRuleId)
         {
             try
             {
-                Tuple<bool, string> response = this.workerRuleService.DeleteWorkerRule(getCurrentUser(Request), WorkerRuleId);
-                if (response.Item1)
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rules/{WorkerRuleId}", "HttpDelete", getCurrentUser(Request), WorkerRuleId.ToString()))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    Tuple<bool, string> response = this.workerRuleService.DeleteWorkerRule(getCurrentUser(Request), WorkerRuleId);
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -135,13 +171,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule/{WorkerRuleId:int}")]
+        [Route("workflow/worker-rules/{WorkerRuleId:int}")]
         [HttpGet]
         public WorkerRuleDetailDTO GetWorkerRuleDetail(int WorkerRuleId)
         {
             try
             {
-                return this.workerRuleService.GetWorkerRuleDetail(getCurrentUser(Request), WorkerRuleId);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rules/{WorkerRuleId}", "HttpGet", getCurrentUser(Request), WorkerRuleId.ToString()))
+                {
+                    return this.workerRuleService.GetWorkerRuleDetail(getCurrentUser(Request), WorkerRuleId);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -150,13 +192,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
         
-        [Route("workflow/worker-rule/{WorkerRuleId:int}/rule")]
+        [Route("workflow/worker-rule-settings")]
         [HttpGet]
-        public List<WorkerRuleRuleListDTO> GetWorkerRuleRuleList(int WorkerRuleId, string UserId = null, string WorkerId = null)
+        public List<WorkerRuleRuleListDTO> GetWorkerRuleRuleList([FromUri(Name = "worker-rule-id")] int WorkerRuleId, [FromUri(Name = "user-id")] string UserId = null, [FromUri(Name = "worker-id")] string WorkerId = null)
         {
             try
             {
-                return this.workerRuleService.GetWorkerRuleRuleList(getCurrentUser(Request), WorkerRuleId, UserId, WorkerId);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rule-settings", "HttpGet", getCurrentUser(Request), WorkerRuleId.ToString()))
+                {
+                    return this.workerRuleService.GetWorkerRuleRuleList(getCurrentUser(Request), WorkerRuleId, UserId, WorkerId);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -165,13 +213,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule/nature")]
+        [Route("workflow/worker-rule-settings/natures")]
         [HttpGet]
         public List<WorkerRuleNatureDTO> GetWorkerRuleNature()
         {
             try
             {
-                return this.workerRuleService.GetWorkerRuleNature();
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rule-settings/natures", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.workerRuleService.GetWorkerRuleNature();
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -180,13 +234,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule/grade")]
+        [Route("workflow/worker-rule-settings/grades")]
         [HttpGet]
         public List<WorkerRuleGradingDTO> GetWorkerRuleGrade()
         {
             try
             {
-                return this.workerRuleService.GetWorkerRuleGrade();
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rule-settings/grades", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.workerRuleService.GetWorkerRuleGrade();
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -195,13 +255,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule/priority/{Code}")]
+        [Route("workflow/worker-rule-settings/priorities")]
         [HttpGet]
-        public List<WorkerRulePriorityDTO> GetWorkerRulePriority(string Code)
+        public List<WorkerRulePriorityDTO> GetWorkerRulePriority([FromUri(Name = "worker-rule-id")] int WorkerRuleId)
         {
             try
             {
-                return this.workerRuleService.GetWorkerRulePriority(Code);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rule-settings/priorities", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.workerRuleService.GetWorkerRulePriority(WorkerRuleId);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -210,13 +276,34 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule/department")]
+        //[Route("workflow/worker-rule/department")]
+        //[HttpGet]
+        //public List<WorkerRuleDepartmentDTO> GetWorkerRuleDepartment()
+        //{
+        //    try
+        //    {
+        //        return this.workerRuleService.GetWorkerRuleDepartment();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        var err = this.workerRuleService.ErrorLog(ex, getCurrentUser(Request));
+        //        throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
+        //    }
+        //}
+
+        [Route("workflow/worker-rule-settings/criteria")]
         [HttpGet]
-        public List<WorkerRuleDepartmentDTO> GetWorkerRuleDepartment()
+        public List<WorkerRuleCriteriaDTO> GetWorkerRuleCriteria([FromUri(Name= "worker-rule-id")] int WorkerRuleId)
         {
             try
             {
-                return this.workerRuleService.GetWorkerRuleDepartment();
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rule-settings/criteria", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.workerRuleService.GetWorkerRuleCriteria(WorkerRuleId);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -225,28 +312,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule/criteria/{Code}")]
-        [HttpGet]
-        public List<WorkerRuleCriteriaDTO> GetWorkerRuleCriteria(string Code)
-        {
-            try
-            {
-                return this.workerRuleService.GetWorkerRuleCriteria(Code);
-            }
-            catch (Exception ex)
-            {
-                var err = this.workerRuleService.ErrorLog(ex, getCurrentUser(Request));
-                throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
-            }
-        }
-
-        [Route("workflow/worker-rule/level")]
+        [Route("workflow/worker-rule-settings/levels")]
         [HttpGet]
         public List<WorkerRuleOrgChartDTO> GetWorkerRuleOrgChart()
         {
             try
             {
-                return this.workerRuleService.GetWorkerRuleOrgChart();
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rule-settings/levels", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.workerRuleService.GetWorkerRuleOrgChart();
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -255,13 +333,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule/user-group")]
+        [Route("workflow/worker-rule-settings/user-groups")]
         [HttpGet]
         public List<WorkerRuleUserGroupDTO> GetWorkerRuleUserGroup()
         {
             try
             {
-                return this.workerRuleService.GetWorkerRuleUserGroup();
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rule-settings/user-groups", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.workerRuleService.GetWorkerRuleUserGroup();
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -270,13 +354,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule/team")]
+        [Route("workflow/worker-rule-settings/teams")]
         [HttpGet]
         public List<WorkerRuleTeamDTO> GetWorkerRuleTeam()
         {
             try
             {
-                return this.workerRuleService.GetWorkerRuleTeam();
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rule-settings/teams", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.workerRuleService.GetWorkerRuleTeam();
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -285,13 +375,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule/team-filter")]
+        [Route("workflow/worker-rule-settings/team-filters")]
         [HttpGet]
         public List<WorkerRuleTeamFilterDTO> GetWorkerRuleTeamFilter()
         {
             try
             {
-                return this.workerRuleService.GetWorkerRuleTeamFilter();
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rule-settings/team-filters", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.workerRuleService.GetWorkerRuleTeamFilter();
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -300,7 +396,7 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule/rule")]
+        [Route("workflow/worker-rule-settings")]
         [HttpPost]
         public HttpResponseMessage SaveWorkerRuleRule()
         {
@@ -311,14 +407,21 @@ namespace HKTDC.WebAPI.Common.Controllers
                 if (string.IsNullOrEmpty(json))
                     throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
                 dynamic stuff = JsonConvert.DeserializeObject(json);
-                Tuple<bool, string> response = this.workerRuleService.SaveWorkerRuleRule(getCurrentUser(Request), stuff);
-                if (response.Item1)
+                int WorkerRuleId = stuff.WorkerRuleId;
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rule-settings", "HttpPost", getCurrentUser(Request), WorkerRuleId.ToString()))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    Tuple<bool, string> response = this.workerRuleService.SaveWorkerRuleRule(getCurrentUser(Request), stuff);
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -329,9 +432,9 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule/rule")]
+        [Route("workflow/worker-rule-settings/{WorkerRuleSettingId:int}")]
         [HttpPut]
-        public HttpResponseMessage UpdateWorkerRuleRule()
+        public HttpResponseMessage UpdateWorkerRuleRule(int WorkerRuleSettingId)
         {
             try
             {
@@ -340,14 +443,21 @@ namespace HKTDC.WebAPI.Common.Controllers
                 if (string.IsNullOrEmpty(json))
                     throw new HttpResponseException(HttpStatusCode.BadRequest);//throws when request without content
                 dynamic stuff = JsonConvert.DeserializeObject(json);
-                Tuple<bool, string> response = this.workerRuleService.SaveWorkerRuleRule(getCurrentUser(Request), stuff);
-                if (response.Item1)
+                int WorkerRuleId = stuff.WorkerRuleId;
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rule-settings/{WorkerRuleSettingId}", "HttpPut", getCurrentUser(Request), WorkerRuleId.ToString()))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    Tuple<bool, string> response = this.workerRuleService.SaveWorkerRuleRule(getCurrentUser(Request), stuff);
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -358,20 +468,26 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule/rule/{WorkerRuleSettingId:int}")]
+        [Route("workflow/worker-rule-settings/{WorkerRuleSettingId:int}")]
         [HttpDelete]
         public HttpResponseMessage DeleteWorkerRuleRule(int WorkerRuleSettingId)
         {
             try
             {
-                Tuple<bool, string> response = this.workerRuleService.DeleteWorkerRuleRule(getCurrentUser(Request), WorkerRuleSettingId);
-                if (response.Item1)
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rule-settings/{WorkerRuleSettingId}", "HttpDelete", getCurrentUser(Request), WorkerRuleSettingId.ToString()))
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
-                }
-                else
+                    Tuple<bool, string> response = this.workerRuleService.DeleteWorkerRuleRule(getCurrentUser(Request), WorkerRuleSettingId);
+                    if (response.Item1)
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"1\", \"Msg\":\"\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                    else
+                    {
+                        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    }
+                } else
                 {
-                    return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -382,13 +498,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule/rule/{WorkerRuleSettingId:int}")]
+        [Route("workflow/worker-rule-settings/{WorkerRuleSettingId:int}")]
         [HttpGet]
         public WorkerRuleRuleDetailDTO GetWorkerRuleRuleDetail(int WorkerRuleSettingId)
         {
             try
             {
-                return this.workerRuleService.GetWorkerRuleRuleDetail(getCurrentUser(Request), WorkerRuleSettingId);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rule-settings/{WorkerRuleSettingId}", "HttpGet", getCurrentUser(Request), WorkerRuleSettingId.ToString()))
+                {
+                    return this.workerRuleService.GetWorkerRuleRuleDetail(getCurrentUser(Request), WorkerRuleSettingId);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -397,13 +519,19 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule/rule/{Code}")]
+        [Route("workflow/worker-rule-settings/rules")]
         [HttpGet]
-        public List<WorkerRuleRuleDTO> GetWorkerRuleRule(string Code)
+        public List<WorkerRuleRuleDTO> GetWorkerRuleRule([FromUri(Name = "worker-rule-id")] int WorkerRuleId)
         {
             try
             {
-                return this.workerRuleService.GetWorkerRuleRule(Code);
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rule-settings/rules", "HttpGet", getCurrentUser(Request), null))
+                {
+                    return this.workerRuleService.GetWorkerRuleRule(WorkerRuleId);
+                } else
+                {
+                    throw new UnauthorizedAccessException();
+                }
             }
             catch (Exception ex)
             {
@@ -412,14 +540,14 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule/preview")]
+        [Route("workflow/worker-rules/{WorkerRuleId:int}/preview")]
         [HttpPost]
-        public HttpResponseMessage WorkerRulePreview()
+        public HttpResponseMessage WorkerRulePreview(int WorkerRuleId)
         {
             try
             {
-                bool havePermission = this.workerRuleService.checkHavePermission(getCurrentUser(Request), "ADMIN", "Process Worker");
-                if (havePermission)
+                //bool havePermission = this.workerRuleService.checkHavePermission(getCurrentUser(Request), "ADMIN", "Process Worker");
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rules/{WorkerRuleId}/preview", "HttpPost", getCurrentUser(Request), WorkerRuleId.ToString()))
                 {
                     var s = HttpContext.Current.Request.Form.GetValues("model");
 
