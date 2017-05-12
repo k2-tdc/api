@@ -17,8 +17,8 @@ namespace HKTDC.WebAPI.Common.Services
         {
             try
             {
-                if (checkHavePermission(UserId, "ADMIN", "User Role"))
-                {
+                //if (checkHavePermission(UserId, "ADMIN", "User Role"))
+                //{
                     if (!string.IsNullOrEmpty(process))
                     {
                         var list = (from a in Db.SPAUserRole
@@ -40,11 +40,11 @@ namespace HKTDC.WebAPI.Common.Services
                     }
 
                     return new List<UserRoleDTO>();
-                }
-                else
-                {
-                    throw new UnauthorizedAccessException();
-                }
+                //}
+                //else
+                //{
+                //    throw new UnauthorizedAccessException();
+                //}
             }
             catch (Exception ex)
             {
@@ -106,8 +106,8 @@ namespace HKTDC.WebAPI.Common.Services
             string msg = "";
             try
             {
-                if (checkHavePermission(UserId, "ADMIN", "User Role"))
-                {
+                //if (checkHavePermission(UserId, "ADMIN", "User Role"))
+                //{
                     //var userRole = Db.SPAUserRole.Where(p => p.SPAUserRoleGUID == RoleId).FirstOrDefault();
                     //if(userRole != null)
                     //{
@@ -122,12 +122,12 @@ namespace HKTDC.WebAPI.Common.Services
                     SqlParameter[] sqlp = { new SqlParameter("RoleId", RoleId) };
                     Db.Database.ExecuteSqlCommand("exec [K2_DeleteUserRole] @RoleId", sqlp);
                     success = true;
-                }
-                else
-                {
-                    success = false;
-                    msg = "Permission denied.";
-                }
+                //}
+                //else
+                //{
+                //    success = false;
+                //    msg = "Permission denied.";
+                //}
             } catch (Exception ex)
             {
                 throw ex;
@@ -139,8 +139,8 @@ namespace HKTDC.WebAPI.Common.Services
         {
             try
             {
-                if (checkHavePermission(UserId, "ADMIN", "User Role"))
-                {
+                //if (checkHavePermission(UserId, "ADMIN", "User Role"))
+                //{
                     UserRoleDetailDTO userRoleDetail = (from a in Db.SPAUserRole
                                                         join b in Db.ProcessList on a.ProcessID equals b.ProcessID into pa
                                                         from b in pa.DefaultIfEmpty()
@@ -166,11 +166,11 @@ namespace HKTDC.WebAPI.Common.Services
                         userRoleDetail.Member = Db.Database.SqlQuery<UserRoleMemberDTO>("exec [K2_GetUserRoleMemberGroupList] @RoleId", sqlp).ToList();
                     }
                     return userRoleDetail;
-                }
-                else
-                {
-                    throw new UnauthorizedAccessException();
-                }
+                //}
+                //else
+                //{
+                //    throw new UnauthorizedAccessException();
+                //}
             } catch (Exception ex)
             {
                 throw ex;
@@ -184,8 +184,8 @@ namespace HKTDC.WebAPI.Common.Services
             string Dept, User, Query, UserRoleGUID, ExpiryDate;
             try
             {
-                if (checkHavePermission(UserId, "ADMIN", "User Role"))
-                {
+                //if (checkHavePermission(UserId, "ADMIN", "User Role"))
+                //{
                     Dept = item.Dept;
                     //User = item.User;
                     Query = item.Query;
@@ -254,11 +254,11 @@ namespace HKTDC.WebAPI.Common.Services
                         success = false;
                         msg = "Invalid User Role.";
                     }
-                } else
-                {
-                    success = false;
-                    msg = "Permission Denied.";
-                }
+                //} else
+                //{
+                //    success = false;
+                //    msg = "Permission Denied.";
+                //}
             } catch(Exception ex)
             {
                 throw ex;
@@ -273,8 +273,8 @@ namespace HKTDC.WebAPI.Common.Services
             string ExpiryDate, UserRoleMemberGUID;
             try
             {
-                if(checkHavePermission(UserId, "ADMIN", "User Role"))
-                {
+                //if(checkHavePermission(UserId, "ADMIN", "User Role"))
+                //{
                     ExpiryDate = item.ExpiryDate;
                     UserRoleMemberGUID = item.UserRoleMemberGUID;
                     if (!string.IsNullOrEmpty(UserRoleMemberGUID)) {
@@ -299,11 +299,11 @@ namespace HKTDC.WebAPI.Common.Services
                         success = false;
                         msg = "Invalid user role member.";
                     }
-                } else
-                {
-                    success = false;
-                    msg = "Permission Denied.";
-                }
+                //} else
+                //{
+                //    success = false;
+                //    msg = "Permission Denied.";
+                //}
             } catch (Exception ex)
             {
                 throw ex;
@@ -317,18 +317,18 @@ namespace HKTDC.WebAPI.Common.Services
             string msg = "";
             try
             {
-                if(checkHavePermission(UserId, "ADMIN", "User Role"))
-                {
+                //if(checkHavePermission(UserId, "ADMIN", "User Role"))
+                //{
                     SqlParameter[] sqlp = {
                                     new SqlParameter("SPAUserRoleMemberGroupGUID", UserRoleMemberGUID)
                                 };
                     Db.Database.ExecuteSqlCommand("exec [K2_DeleteUserRoleMember] @SPAUserRoleMemberGroupGUID", sqlp);
                     success = true;
-                } else
-                {
-                    success = false;
-                    msg = "Permission Denied.";
-                }
+                //} else
+                //{
+                //    success = false;
+                //    msg = "Permission Denied.";
+                //}
             } catch(Exception ex)
             {
                 throw ex;

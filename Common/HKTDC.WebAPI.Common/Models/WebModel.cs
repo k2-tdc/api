@@ -31,6 +31,7 @@ namespace HKTDC.WebAPI.Common.Models
         public string Scount { get; set; }
         public List<SSubMenu> sumenu { get; set; }
         public string MenuId { get; set; }
+        public string WorkflowCount { get; set; }
     }
     public class SSubMenu
     {
@@ -38,6 +39,7 @@ namespace HKTDC.WebAPI.Common.Models
         public string Mlink { get; set; }
         public string Scount { get; set; }
         public string MenuId { get; set; }
+        public string WorkflowCount { get; set; }
     }
 
     //***************** Stroed Procedure Return Type  *****************
@@ -54,6 +56,7 @@ namespace HKTDC.WebAPI.Common.Models
         public string Scount { get; set; }
         public string RoleName { get; set; }
         public string MenuId { get; set; }
+        public string WorkflowCount { get; set; }
     }
     public class ProcessListDTO
     {
@@ -315,6 +318,7 @@ namespace HKTDC.WebAPI.Common.Models
         public int ProcessId { get; set; }
         public string ProcessName { get; set; }
         public string MenuItemGUID { get; set; }
+        public string ProcessDisplayName { get; set; }
         public List<UserPermissionDetailUserRoleDTO> Role { get; set; }
     }
     public class UserPermissionDetailUserRoleDTO
@@ -490,5 +494,9 @@ namespace HKTDC.WebAPI.Common.Models
         public string Remark { get; set; }
         public string Permission { get; set; }
         public string ProcessName { get; set; }
+    }
+    public class MenuCount
+    {
+        public List<Submenu> number { get; set; }
     }
 }

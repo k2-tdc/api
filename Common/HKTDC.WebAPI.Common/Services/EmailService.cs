@@ -15,8 +15,8 @@ namespace HKTDC.WebAPI.Common.Services
         {
             try
             {
-                if (checkHavePermission(UserId, "ADMIN", "Email Template"))
-                {
+                //if (checkHavePermission(UserId, "ADMIN", "Email Template"))
+                //{
                     var list = (from a in Db.EmailTemplate
                                 join b in Db.ProcessList on a.ProcessID equals b.ProcessID into ps
                                 from b in ps.DefaultIfEmpty()
@@ -43,11 +43,11 @@ namespace HKTDC.WebAPI.Common.Services
                         list = list.Where(a => a.ActivityGroupId == StepId);
                     }
                     return list.ToList();
-                }
-                else
-                {
-                    throw new UnauthorizedAccessException();
-                }
+                //}
+                //else
+                //{
+                //    throw new UnauthorizedAccessException();
+                //}
             }
             catch (Exception ex)
             {
@@ -65,8 +65,8 @@ namespace HKTDC.WebAPI.Common.Services
             bool Enabled;
             try
             {
-                if (checkHavePermission(currentUserId, "ADMIN", "Email Template"))
-                {
+                //if (checkHavePermission(currentUserId, "ADMIN", "Email Template"))
+                //{
                     TemplateId = item.TemplateId;
                     ProcessId = item.ProcessId;
                     StepId = item.StepId;
@@ -128,10 +128,10 @@ namespace HKTDC.WebAPI.Common.Services
                             msg = "This process and activity group already have email template.";
                         }
                     }
-                } else
-                {
-                    throw new UnauthorizedAccessException();
-                }
+                //} else
+                //{
+                //    throw new UnauthorizedAccessException();
+                //}
             }
             catch (Exception ex)
             {
@@ -146,8 +146,8 @@ namespace HKTDC.WebAPI.Common.Services
             string msg = "";
             try
             {
-                if (checkHavePermission(UserId, "ADMIN", "Email Template"))
-                {
+                //if (checkHavePermission(UserId, "ADMIN", "Email Template"))
+                //{
                     var template = Db.EmailTemplate.Where(p => p.EmailTemplateID == TemplateId).FirstOrDefault();
                     if (template != null)
                     {
@@ -169,10 +169,10 @@ namespace HKTDC.WebAPI.Common.Services
                         success = false;
                         msg = "Fail! Email Template not found.";
                     }
-                } else
-                {
-                    throw new UnauthorizedAccessException();
-                }
+                //} else
+                //{
+                //    throw new UnauthorizedAccessException();
+                //}
             }
             catch (Exception ex)
             {
@@ -185,8 +185,8 @@ namespace HKTDC.WebAPI.Common.Services
         {
             try
             {
-                if (checkHavePermission(UserId, "ADMIN", "Email Template"))
-                {
+                //if (checkHavePermission(UserId, "ADMIN", "Email Template"))
+                //{
                     //return Db.EmailTemplate.Where(p => p.EmailTemplateID == TemplateId).FirstOrDefault();
                     return (from a in Db.EmailTemplate
                             join b in Db.ProcessList on a.ProcessID equals b.ProcessID into ps
@@ -204,10 +204,10 @@ namespace HKTDC.WebAPI.Common.Services
                                 CreatedBy = a.CreatedBy,
                                 CreatedOn = a.CreatedOn
                             }).FirstOrDefault();
-                } else
-                {
-                    throw new UnauthorizedAccessException();
-                }
+                //} else
+                //{
+                //    throw new UnauthorizedAccessException();
+                //}
             }
             catch (Exception ex)
             {

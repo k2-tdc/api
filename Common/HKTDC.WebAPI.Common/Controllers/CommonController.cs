@@ -300,13 +300,13 @@ namespace HKTDC.WebAPI.Common.Controllers
 
         [Route("workflow/users/{uid}/applications")]
         [HttpGet]
-        public List<ProcessListDTO> GetProcessList(string uid)
+        public List<ProcessListDTO> GetProcessList(string uid, string page = null)
         {
             try
             {
                 if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/applications", "HttpGet", getCurrentUser(Request), uid))
                 {
-                    return this.commonService.GetProcessList();
+                    return this.commonService.GetProcessList(uid, page);
                 }
                 else
                 {
@@ -338,7 +338,8 @@ namespace HKTDC.WebAPI.Common.Controllers
                         //return Request.CreateResponse(HttpStatusCode.InternalServerError, "Fail");
                         return new HttpResponseMessage { Content = new StringContent("", System.Text.Encoding.UTF8, "application/json") };
                     }
-                } else
+                }
+                else
                 {
                     throw new UnauthorizedAccessException();
                 }
@@ -411,6 +412,39 @@ namespace HKTDC.WebAPI.Common.Controllers
                         //this.commonService.LogTime("Menu - " + page, elapsedMs);
                         return menu;
                     } else
+                    {
+                        throw new ProcessNotFoundException();
+                    }
+                }
+                else
+                {
+                    throw new UnauthorizedAccessException();
+                }
+            }
+            catch (Exception ex)
+            {
+                var err = this.commonService.ErrorLog(ex, getCurrentUser(Request));
+                throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
+            }
+        }
+
+        [Route("workflow/users/{uid}/authorized-page-count")]
+        [HttpGet]
+        public MenuCount GetAuthorizePageCount(string uid, string process)
+        {
+            try
+            {
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/authorized-page-count", "HttpGet", getCurrentUser(Request), uid))
+                {
+                    ProcessList pList = this.commonService.GetProcess(process.ToUpper());
+                    if (pList != null)
+                    {
+                        List<Submenu> subMenu = this.commonService.GetAuthorizePageCount(uid, process.ToUpper());
+                        MenuCount menuCount = new MenuCount();
+                        menuCount.number = subMenu;
+                        return menuCount;
+                    }
+                    else
                     {
                         throw new ProcessNotFoundException();
                     }

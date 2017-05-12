@@ -18,5 +18,6 @@ namespace HKTDC.WebAPI.Common.Models
         public string IsDefault { get; set; }
         public string Remark { get; set; }
         public string Menulink { get; set; }
+        public string WorkflowCount { get; set; }
     }
 }

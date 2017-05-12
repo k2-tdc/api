@@ -16,8 +16,8 @@ namespace HKTDC.WebAPI.Common.Services
         {
             try
             {
-                if (checkHavePermission(UserId, "ADMIN", "Role Permission"))
-                {
+                //if (checkHavePermission(UserId, "ADMIN", "Role Permission"))
+                //{
                     List<UserPermissionDTO> list = new List<UserPermissionDTO>();
                     SqlParameter[] sqlp = {
                         new SqlParameter("Process", DBNull.Value)
@@ -37,11 +37,11 @@ namespace HKTDC.WebAPI.Common.Services
                         list.Add(tmp);
                     }
                     return list;
-                }
-                else
-                {
-                    throw new UnauthorizedAccessException();
-                }
+                //}
+                //else
+                //{
+                //    throw new UnauthorizedAccessException();
+                //}
             } catch(Exception ex)
             {
                 throw ex;
@@ -54,8 +54,8 @@ namespace HKTDC.WebAPI.Common.Services
             string msg = "";
             try
             {
-                if (checkHavePermission(UserId, "ADMIN", "Role Permission"))
-                {
+                //if (checkHavePermission(UserId, "ADMIN", "Role Permission"))
+                //{
                     var userPermission = Db.SPAUserRoleEntity.Where(p => p.SPAUserRoleEntityGUID == UserPermissionGUID).FirstOrDefault();
                     if (userPermission != null)
                     {
@@ -68,12 +68,12 @@ namespace HKTDC.WebAPI.Common.Services
                         success = false;
                         msg = "User Permission not found.";
                     }
-                }
-                else
-                {
-                    success = false;
-                    msg = "Permission Denied.";
-                }
+                //}
+                //else
+                //{
+                //    success = false;
+                //    msg = "Permission Denied.";
+                //}
             }
             catch (Exception ex)
             {
@@ -86,8 +86,8 @@ namespace HKTDC.WebAPI.Common.Services
         {
             try
             {
-                if (checkHavePermission(UserId, "ADMIN", "Role Permission"))
-                {
+                //if (checkHavePermission(UserId, "ADMIN", "Role Permission"))
+                //{
                     var list = (from a in Db.SPAMenuMaster
                                 join b in Db.SPAMenuGroup on a.SPAMenuMasterGUID equals b.SPAMenuMasterGUID
                                 join c in Db.SPAMenuItem on b.SPAMenuGroupGUID equals c.SPAMenuGroupGUID
@@ -98,10 +98,10 @@ namespace HKTDC.WebAPI.Common.Services
                                     MenuItemName = c.ItemName
                                 }).ToList();
                     return list;
-                } else
-                {
-                    throw new UnauthorizedAccessException();
-                }
+                //} else
+                //{
+                //    throw new UnauthorizedAccessException();
+                //}
             } catch (Exception ex)
             {
                 throw ex;
@@ -112,18 +112,18 @@ namespace HKTDC.WebAPI.Common.Services
         {
             try
             {
-                if (checkHavePermission(UserId, "ADMIN", "Role Permission"))
-                {
+                //if (checkHavePermission(UserId, "ADMIN", "Role Permission"))
+                //{
                     var list = Db.SPAUserRole.Where(p => p.ProcessID == ProcessId).Select(p => new UserRoleDTO
                     {
                         UserRoleGUID = p.SPAUserRoleGUID,
                         Role = p.RoleName
                     }).ToList();
                     return list;
-                } else
-                {
-                    throw new UnauthorizedAccessException();
-                }
+                //} else
+                //{
+                //    throw new UnauthorizedAccessException();
+                //}
             } catch (Exception ex)
             {
                 throw ex;
@@ -136,8 +136,15 @@ namespace HKTDC.WebAPI.Common.Services
             string msg = "";
             try
             {
-                if (checkHavePermission(UserId, "ADMIN", "Role Permission"))
-                {
+                //if (checkHavePermission(UserId, "ADMIN", "Role Permission"))
+                //{
+                    string oldMenuItemGUID = item.OldMenuItemGUID;
+                    if (!string.IsNullOrEmpty(oldMenuItemGUID))
+                    {
+                        List<SPAUserRoleEntity> roleEntityList = Db.SPAUserRoleEntity.Where(p => p.SPAMenuItemGUID == oldMenuItemGUID).ToList();
+                        Db.SPAUserRoleEntity.RemoveRange(roleEntityList);
+                        Db.SaveChanges();
+                    }
                     foreach(var a in item.data)
                     {
                         SqlParameter[] sqlp = {
@@ -146,19 +153,19 @@ namespace HKTDC.WebAPI.Common.Services
                             new SqlParameter("SPAUserRoleEntityGUID", DBNull.Value),
                             new SqlParameter("Remark", DBNull.Value)
                         };
-                        if(!string.IsNullOrEmpty(a.RolePermissionGUID.ToString()))
-                        {
-                            sqlp[2].Value = a.RolePermissionGUID.ToString();
-                        }
+                        //if(!string.IsNullOrEmpty(a.RolePermissionGUID.ToString()))
+                        //{
+                        //    sqlp[2].Value = a.RolePermissionGUID.ToString();
+                        //}
                         Db.Database.ExecuteSqlCommand("exec [K2_SaveUserPermission] @SPAUserRoleGUID,@SPAMenuItemGUID,@SPAUserRoleEntityGUID,@Remark", sqlp);
                     }
                     success = true;
-                }
-                else
-                {
-                    success = false;
-                    msg = "Permission Denied.";
-                }
+                //}
+                //else
+                //{
+                //    success = false;
+                //    msg = "Permission Denied.";
+                //}
             }
             catch (Exception ex)
             {
@@ -171,8 +178,8 @@ namespace HKTDC.WebAPI.Common.Services
         {
             try
             {
-                if (checkHavePermission(UserId, "ADMIN", "Role Permission"))
-                {
+                //if (checkHavePermission(UserId, "ADMIN", "Role Permission"))
+                //{
                     string[] perGUID = RolePermissionGUID.Split(',');
                     List<UserPermissionDetailUserRoleDTO> userRoleList = new List<UserPermissionDetailUserRoleDTO>();
 
@@ -186,6 +193,7 @@ namespace HKTDC.WebAPI.Common.Services
                                                     {
                                                         ProcessId = c.ProcessID,
                                                         ProcessName = c.ProcessName,
+                                                        ProcessDisplayName = c.ProcessDisplayName,
                                                         MenuItemGUID = a.SPAMenuItemGUID
                                                     }).FirstOrDefault();
                         userPermissionDetail.Role = (from a in Db.SPAUserRoleEntity
@@ -203,10 +211,10 @@ namespace HKTDC.WebAPI.Common.Services
                     {
                         throw new IndexOutOfRangeException();
                     }
-                } else
-                {
-                    throw new UnauthorizedAccessException();
-                }
+                //} else
+                //{
+                //    throw new UnauthorizedAccessException();
+                //}
             } catch(Exception ex)
             {
                 throw ex;
