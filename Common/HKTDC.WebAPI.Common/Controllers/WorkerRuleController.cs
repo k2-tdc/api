@@ -23,26 +23,26 @@ namespace HKTDC.WebAPI.Common.Controllers
             this.workerRuleService = new WorkerRuleService();
         }
 
-        [Route("workflow/worker-rules/process")]
-        [HttpGet]
-        public List<ProcessListDTO> GetProcessList(string MenuId)
-        {
-            try
-            {
-                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rules/process", "HttpGet", getCurrentUser(Request), null))
-                {
-                    return this.workerRuleService.GetProcessList(getCurrentUser(Request), MenuId);
-                } else
-                {
-                    throw new UnauthorizedAccessException();
-                }
-            }
-            catch (Exception ex)
-            {
-                var err = this.workerRuleService.ErrorLog(ex, getCurrentUser(Request));
-                throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
-            }
-        }
+        //[Route("workflow/worker-rules/process")]
+        //[HttpGet]
+        //public List<ProcessListDTO> GetProcessList(string MenuId)
+        //{
+        //    try
+        //    {
+        //        if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rules/process", "HttpGet", getCurrentUser(Request), null))
+        //        {
+        //            return this.workerRuleService.GetProcessList(getCurrentUser(Request), MenuId);
+        //        } else
+        //        {
+        //            throw new UnauthorizedAccessException();
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        var err = this.workerRuleService.ErrorLog(ex, getCurrentUser(Request));
+        //        throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
+        //    }
+        //}
 
         [Route("workflow/worker-rules")]
         [HttpGet]
@@ -519,13 +519,13 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
         }
 
-        [Route("workflow/worker-rule-settings/rules")]
+        [Route("workflow/worker-rule-settings/templates")]
         [HttpGet]
         public List<WorkerRuleRuleDTO> GetWorkerRuleRule([FromUri(Name = "worker-rule-id")] int WorkerRuleId)
         {
             try
             {
-                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rule-settings/rules", "HttpGet", getCurrentUser(Request), null))
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/worker-rule-settings/templates", "HttpGet", getCurrentUser(Request), null))
                 {
                     return this.workerRuleService.GetWorkerRuleRule(WorkerRuleId);
                 } else

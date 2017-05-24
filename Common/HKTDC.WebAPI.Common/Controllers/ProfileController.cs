@@ -22,13 +22,13 @@ namespace HKTDC.WebAPI.Common.Controllers
 
         [Route("workflow/users/{uid}/email-profiles")]
         [HttpGet]
-        public List<NotificationProfileDTO> GetProfileList(string uid, string profile = null)
+        public List<NotificationProfileDTO> GetProfileList(string uid)
         {
             try
             {
                 if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/email-profiles", "HttpGet", getCurrentUser(Request), uid))
                 {
-                    return this.profileService.GetProfileList(uid, profile);
+                    return this.profileService.GetProfileList(getCurrentUser(Request), uid);
                 }
                 else
                 {

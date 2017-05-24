@@ -255,7 +255,8 @@ namespace HKTDC.WebAPI.Common.Controllers
                 }
             } catch (Exception ex)
             {
-                throw ex;
+                var err = this.userRoleService.ErrorLog(ex, getCurrentUser(Request));
+                throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }
 

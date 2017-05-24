@@ -31,17 +31,19 @@ namespace HKTDC.WebAPI.CHSW.Services
         {
             string proinsid = "";
             WorkflowFacade workfacade = new WorkflowFacade();
-            List<WorklistItem> worklist = workfacade.GetWorklistItemsByProcess(UserId);
-            List<WorklistItem> sharedworklist = new List<WorklistItem>();
-
-            if (worklist.Count() > 0)
+            List<WorklistItem> worklist = new List<WorklistItem>();
+      
+            if (string.IsNullOrEmpty(SUser))
             {
-                proinsid = String.Join(",", worklist.Select(P => P.ProcInstID)).TrimEnd(',');
+                worklist = workfacade.GetWorklistItemForAllTasks(UserId);
+                //if (worklist.Count() > 0)
+                //{
+                //    proinsid = String.Join(",", worklist.Select(P => P.ProcInstID)).TrimEnd(',');
+                //}
             }
-            if (SUser != null)
+            else
             {
-                worklist = new List<WorklistItem>();
-                sharedworklist = workfacade.GetWorklistItemsByProcess(SUser);
+                List<WorklistItem>  sharedworklist = workfacade.GetWorklistItemForAllTasks(SUser);
                 var sharePermit = (from a in Db.SharingList
                                    join b in Db.DelegationProcess on a.ActivityGroupID equals b.GroupID into ps
                                    from b in ps.DefaultIfEmpty()
@@ -57,7 +59,6 @@ namespace HKTDC.WebAPI.CHSW.Services
                         worklist.Add(i);
                     }
                 }
-                // worklist.AddRange(sharedworklist);
             }
 
             List<CheckStatus> StatusList = new List<CheckStatus>();
@@ -124,8 +125,8 @@ namespace HKTDC.WebAPI.CHSW.Services
                         {
                             int procid = 0;
                             procid = Convert.ToInt32(request.ProcInstID);
-                            if (worklist.Select(P => P.ProcInstID).Contains(procid))
-                            {
+                            //if (worklist.Select(P => P.ProcInstID).Contains(procid))
+                            //{
                                 status.FormID = request.FormID;
                                 status.ProcInstID = request.ProcInstID;
                                 status.ReferenceID = request.ReferenceID;
@@ -148,19 +149,26 @@ namespace HKTDC.WebAPI.CHSW.Services
                                 //if (!string.IsNullOrEmpty(request.ProcInstID))
                                 //{
 
-                                if (!proinsid.Split(',').Contains(request.ProcInstID))
+                                //if (!proinsid.Split(',').Contains(request.ProcInstID))
+                                //{
+                                //    status.ProcessUrl = worklist.Where(p => p.ProcInstID == procid).Select(P => P.Data).FirstOrDefault() + "&SharedBy=" + SUser;
+                                //    status.Type = "Sharing";
+                                //}
+                                //else
+                                //    status.ProcessUrl = worklist.Where(p => p.ProcInstID == procid).Select(P => P.Data).FirstOrDefault();
+                                
+                                if(!string.IsNullOrEmpty(SUser))
                                 {
-                                    status.ProcessUrl = worklist.Where(p => p.ProcInstID == procid).Select(P => P.Data).FirstOrDefault() + "&SharedBy=" + SUser;
                                     status.Type = "Sharing";
                                 }
-                                else
-                                    status.ProcessUrl = worklist.Where(p => p.ProcInstID == procid).Select(P => P.Data).FirstOrDefault();
+
+
                                 //}
                                 //status.ProcessUrl = worklist.Where(p => p.ProcInstID == procid).Select(P => P.Data).FirstOrDefault();
                                 status.SN = worklist.Where(p => p.ProcInstID == procid).Select(P => P.SN).FirstOrDefault();
-                                var actions = worklist.Where(p => p.ProcInstID == procid).Select(P => P.Actions).FirstOrDefault();
-                                if (actions != null)
-                                    status.actions = actions.Select(P => P.Name).ToList();
+                                //var actions = worklist.Where(p => p.ProcInstID == procid).Select(P => P.Actions).FirstOrDefault();
+                                //if (actions != null)
+                                //    status.actions = actions.Select(P => P.Name).ToList();
 
                                 if (request.Permission != "2")
                                 {
@@ -212,7 +220,7 @@ namespace HKTDC.WebAPI.CHSW.Services
                                         status.RequestList = null;
                                 }
                                 FormRequests.Add(status);
-                            }
+                            //}
                         }
                     }
 

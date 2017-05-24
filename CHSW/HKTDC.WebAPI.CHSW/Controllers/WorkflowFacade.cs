@@ -193,6 +193,69 @@ namespace HKTDC.WebAPI.CHSW.Controllers
             }
 
         }
+        public List<WorklistItem> GetWorklistItemForAllTasks(string UserId)
+        {
+            try
+            {
+                this.context.UserName = domain + "\\" + UserId;//@"HK\cccheung"mayik;
+                List<WorklistItem> worklist = new List<WorklistItem>();
+                string[] processNames = ProcessFullName.Split(';').ToArray();
+                foreach (string processName in processNames)
+                {
+                    List<WorklistItem> items = this.wfclient.GetWorklistItemsByProcessForAllTasks(this.context, PlatformType.ASP, processName);
+                    if (items != null && items.Count > 0)
+                        worklist.AddRange(items);
+                }
+                return worklist;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+        public List<WorklistItem> GetWorklistItemForApprovalTasks(string UserId,string[] ActivityNames)
+        {
+            try
+            {
+                this.context.UserName = domain + "\\" + UserId;//@"HK\cccheung"mayik;
+                List<WorklistItem> worklist = new List<WorklistItem>();
+                string[] processNames = ProcessFullName.Split(';').ToArray();
+                foreach (string processName in processNames)
+                {
+                    List<WorklistItem> items = this.wfclient.GetWorklistItemsByProcessForApprovalTasks(this.context, PlatformType.ASP, processName);
+                    if (items != null && items.Count > 0)
+                        worklist.AddRange(items.Where(p=>ActivityNames.Contains(p.ActivityName)).ToList());
+                }
+                return worklist;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+        public List<WorklistItem> GetWorklistItemForTaskDetail(string UserId)
+        {
+            try
+            {
+                this.context.UserName = domain + "\\" + UserId;//@"HK\cccheung"mayik;
+                List<WorklistItem> worklist = new List<WorklistItem>();
+                string[] processNames = ProcessFullName.Split(';').ToArray();
+                foreach (string processName in processNames)
+                {
+                    List<WorklistItem> items = this.wfclient.GetWorklistItemsByProcessForTaskDetail(this.context, PlatformType.ASP, processName);
+                    if (items != null && items.Count > 0)
+                        worklist.AddRange(items);
+                }
+                return worklist;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
         public List<WorklistItem> GeWorklistItemsByProcessAction(string UserId, string ActionStatus)
         {
             try

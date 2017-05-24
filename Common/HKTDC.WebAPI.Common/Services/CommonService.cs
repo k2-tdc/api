@@ -197,34 +197,42 @@ namespace HKTDC.WebAPI.Common.Services
                     string processName = ConfigurationManager.AppSettings.Get("CHSWProcessName").ToString();
                     workfacade.setWFProcess(processName);
                     List<WorklistItem> worklist = null;
-                    worklist = workfacade.GetWorklistItemsByProcess(uid);
+                    worklist = workfacade.GetWorklistItemssForAuthorizedPageCount(uid);
 
                     foreach(SPAMenuItem menu in menuList)
                     {
-                        string proinsid = "";
                         Submenu tmpSubMenu = new Submenu();
                         tmpSubMenu.MenuId = menu.SPAMenuItemGUID;
                         tmpSubMenu.Name = menu.ItemName;
-                        if (!string.Equals(menu.WorkflowCount, "All"))
+
+                        if(string.Equals(menu.WorkflowCount, "Approval,ITSApproval"))
                         {
                             string[] approvalStatus = menu.WorkflowCount.Split(',');
-                            proinsid = String.Join(",", worklist.Where(P => approvalStatus.Contains(P.ActivityName)).Select(p => p.ProcInstID)).TrimEnd(',');
-                        } else
+                            tmpSubMenu.Scount = worklist.Where(P => approvalStatus.Contains(P.ActivityName)).ToList().Count().ToString();
+                        } else if(string.Equals(menu.WorkflowCount, "Draft"))
                         {
-                            proinsid = String.Join(",", worklist.Select(P => P.ProcInstID)).TrimEnd(',');
-                        }
-                        SqlParameter[] tmpSqlPar = {
+                            SqlParameter[] tmpSqlPar = {
                                     new SqlParameter("Process", process),
                                     new SqlParameter("ProcIntId", DBNull.Value),
                                     new SqlParameter("Type", menu.WorkflowCount),
                                     new SqlParameter("UserId", uid)
                                 };
-                        if (!string.IsNullOrEmpty(proinsid))
+
+                            int count = Db.Database.SqlQuery<int>("exec [K2_GetMenuTaskCount] @UserId,@Process,@Type,@ProcIntId", tmpSqlPar).FirstOrDefault();
+                            tmpSubMenu.Scount = count.ToString();
+                        } else
                         {
-                            tmpSqlPar[1].Value = proinsid;
+                            tmpSubMenu.Scount = worklist.Count().ToString();
                         }
-                        int count = Db.Database.SqlQuery<int>("exec [K2_GetMenuTaskCount] @UserId,@Process,@Type,@ProcIntId", tmpSqlPar).FirstOrDefault();
-                        tmpSubMenu.Scount = count.ToString();
+                        //if (!string.Equals(menu.WorkflowCount, "All"))
+                        //{
+                        //    string[] approvalStatus = menu.WorkflowCount.Split(',');
+                        //    proinsid = String.Join(",", worklist.Where(P => approvalStatus.Contains(P.ActivityName)).Select(p => p.ProcInstID)).TrimEnd(',');
+                        //} else
+                        //{
+                        //    proinsid = String.Join(",", worklist.Select(P => P.ProcInstID)).TrimEnd(',');
+                        //}
+                        
 
                         subMenuList.Add(tmpSubMenu);
                     }
@@ -902,23 +910,20 @@ namespace HKTDC.WebAPI.Common.Services
             string returnStrHead = "{\"Data\":[{";
             string returnStrBody = "";
             string returnStrEnd = "}]}";
-            string[] availableProcess = ConfigurationManager.AppSettings.Get("AvailableProcess").ToString().Split(';');
-
-            List<ChkFrmStatus> FormRequests = new List<ChkFrmStatus>();
+            
             WorkflowFacade workfacade = new WorkflowFacade();
-            List<WorklistItem> worklist = new List<WorklistItem>();
-            List<WorklistItem> sharedworklist = new List<WorklistItem>();
             try
             {
+                string[] availableProcess = ConfigurationManager.AppSettings.Get("AvailableProcess").ToString().Split(';');
                 if (!string.IsNullOrEmpty(process))
                 {
                     process = process.ToUpper();
                     if (availableProcess.Contains(process))
                     {
+                        int count = 0;
                         string processName = ConfigurationManager.AppSettings.Get(process + "ProcessName").ToString();
                         workfacade.setWFProcess(processName);
-                        worklist = workfacade.GetWorklistItemsByProcess(UserId);
-                        int count = worklist.Count();
+                        count = workfacade.GetWorklistCount(UserId);
 
                         returnStrBody = returnStrBody + "\"" + process + "_count\":" + count.ToString();
                         haveResult = true;
@@ -928,15 +933,10 @@ namespace HKTDC.WebAPI.Common.Services
                 {
                     foreach (var proc in availableProcess)
                     {
+                        int count = 0;
                         string processName = ConfigurationManager.AppSettings.Get(proc + "ProcessName").ToString();
                         workfacade.setWFProcess(processName);
-                        worklist = workfacade.GetWorklistItemsByProcess(UserId);
-                        int count = worklist.Count();
-                        
-                        if (!string.IsNullOrEmpty(returnStrBody))
-                        {
-                            returnStrBody = returnStrBody + ",";
-                        }
+                        count = workfacade.GetWorklistCount(UserId);
 
                         returnStrBody = returnStrBody + "\"" + proc + "_count\":" + count.ToString();
                         haveResult = true;
@@ -976,6 +976,12 @@ namespace HKTDC.WebAPI.Common.Services
             {
                 throw ex;
             }
+        }
+
+        public List<ProcessMenu> GetApplicationProcessList(string uid)
+        {
+            SqlParameter[] sqlp2 = { new SqlParameter("UserId", uid) };
+            return Db.Database.SqlQuery<ProcessMenu>("exec [K2_GetUserProcessList] @UserId", sqlp2).ToList();
         }
     }
 }

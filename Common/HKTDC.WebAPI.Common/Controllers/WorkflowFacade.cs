@@ -205,6 +205,46 @@ namespace HKTDC.WebAPI.Common.Controllers
             }
 
         }
+        public List<WorklistItem> GetWorklistItemssForAuthorizedPageCount(string UserId)
+        {
+            try
+            {
+                this.context.UserName = domain + "\\" + UserId;//@"HK\cccheung"mayik;
+                List<WorklistItem> worklist = new List<WorklistItem>();
+                string[] processNames = ProcessFullName.Split(';').ToArray();
+                foreach (string processName in processNames)
+                {
+                    List<WorklistItem> items = this.wfclient.GetWorklistItemsForAuthorizedPageCount(this.context, PlatformType.ASP, processName);
+                    if (items != null && items.Count > 0)
+                        worklist.AddRange(items);
+                }
+                return worklist;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+        public int GetWorklistCount(string UserId)
+        {
+            try
+            {
+                int intReturn = 0;
+                this.context.UserName = domain + "\\" + UserId;//@"HK\cccheung"mayik;
+                string[] processNames = ProcessFullName.Split(';').ToArray();
+                foreach (string processName in processNames)
+                {
+                    intReturn += this.wfclient.GetWorklistCount(this.context, PlatformType.ASP, processName);
+                }
+                return intReturn;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
         public List<WorklistItem> GeWorklistItemsByProcessAction(string UserId, string ActionStatus)
         {
             try

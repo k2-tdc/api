@@ -59,14 +59,14 @@ namespace HKTDC.WebAPI.Common.Controllers
 
         [Route("workflow/delegation-list/actions")]
         [HttpGet]
-        public List<DelegationActionDTO> GetDelegationAction(string type)
+        public List<DelegationActionDTO> GetDelegationAction()
         {
 
             try
             {
                 if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/delegation-list/actions", "HttpGet", getCurrentUser(Request), null))
                 {
-                    return this.delegationSharingService.GetDelegationAction(type);
+                    return this.delegationSharingService.GetDelegationAction("Delegation");
                 } else
                 {
                     throw new UnauthorizedAccessException();

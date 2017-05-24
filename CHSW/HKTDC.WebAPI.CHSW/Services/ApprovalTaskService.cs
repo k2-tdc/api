@@ -16,23 +16,18 @@ namespace HKTDC.WebAPI.CHSW.Services
 
         public List<ChkFrmStatus> GetApproveList(string ReferID, string CStat, string FDate, string TDate, string UserId, string SUser, string ProsIncId, int offset = 0, int limit = 999999, string sort = null, string applicant = null, string applicantEmpNo = null)
         {
-            string proinsid = "";
             WorkflowFacade workfacade = new WorkflowFacade();
-            //List<WorklistItem> worklist = workfacade.GeWorklistItemsByProcessAction(UserId, "Approval");
-            //worklist.AddRange(workfacade.GeWorklistItemsByProcessAction(UserId, "ITSApproval"));
+
             string[] approvalStatus = { "Approval", "ITSApproval" };
-            List<WorklistItem> tmpWorklist = workfacade.GetWorklistItemsByProcess(UserId);
-            List<WorklistItem> worklist = tmpWorklist.Where(P => approvalStatus.Contains(P.ActivityName)).ToList();
-            if (worklist.Count() > 0)
+            List<WorklistItem> worklist = new List<WorklistItem>();
+     
+            if (string.IsNullOrEmpty(SUser))
             {
-                proinsid = String.Join(",", worklist.Select(P => P.ProcInstID)).TrimEnd(',');
+                worklist = workfacade.GetWorklistItemForApprovalTasks(UserId, approvalStatus);
             }
-
-
-            if (SUser != null)
+            else
             {
-                worklist = new List<WorklistItem>();
-                List<WorklistItem> sharedworklist = workfacade.GetWorklistItemsByProcess(SUser);
+                List<WorklistItem> sharedworklist = workfacade.GetWorklistItemForApprovalTasks(SUser, approvalStatus);
                 var sharePermit = (from a in Db.SharingList
                                    join b in Db.DelegationProcess on a.ActivityGroupID equals b.GroupID into ps
                                    from b in ps.DefaultIfEmpty()
@@ -41,9 +36,7 @@ namespace HKTDC.WebAPI.CHSW.Services
                                         && a.ToWorkerID == UserId
                                    select b.K2StepName
                                    ).ToList();
-                worklist.AddRange(sharedworklist.Where(P => approvalStatus.Contains(P.ActivityName) && sharePermit.Contains(P.ActivityName)).ToList());
-                //List<WorklistItem> sharedworklist = workfacade.GeWorklistItemsByProcessAction(SUser, "Approval");
-                //worklist.AddRange(sharedworklist);
+                worklist=sharedworklist.Where(P => sharePermit.Contains(P.ActivityName)).ToList();
             }
             List<CheckStatus> StatusList = new List<CheckStatus>();
             List<ChkFrmStatus> FormRequests = new List<ChkFrmStatus>();
@@ -137,13 +130,17 @@ namespace HKTDC.WebAPI.CHSW.Services
                         if (!string.IsNullOrEmpty(request.ProcInstID))
                         {
                             procid = Convert.ToInt32(request.ProcInstID);
-                            if (!proinsid.Split(',').Contains(request.ProcInstID))
+                            //if (!proinsid.Split(',').Contains(request.ProcInstID))
+                            //{
+                            //    status.ProcessUrl = worklist.Where(p => p.ProcInstID == procid).Select(P => P.Data).FirstOrDefault() + "&SharedBy=" + SUser;
+                            //    status.Type = "Sharing";
+                            //}
+                            //else
+                            //    status.ProcessUrl = worklist.Where(p => p.ProcInstID == procid).Select(P => P.Data).FirstOrDefault();
+                            if(!string.IsNullOrEmpty(SUser))
                             {
-                                status.ProcessUrl = worklist.Where(p => p.ProcInstID == procid).Select(P => P.Data).FirstOrDefault() + "&SharedBy=" + SUser;
                                 status.Type = "Sharing";
                             }
-                            else
-                                status.ProcessUrl = worklist.Where(p => p.ProcInstID == procid).Select(P => P.Data).FirstOrDefault();
                         }
 
 
@@ -219,7 +216,7 @@ namespace HKTDC.WebAPI.CHSW.Services
             try
             {
                 WorkflowFacade workfacade = new WorkflowFacade();
-                List<WorklistItem> worklist = workfacade.GetWorklistItemsByProcess(UserId);
+                List<WorklistItem> worklist = workfacade.GetWorklistItemForTaskDetail(UserId);
                 //List<WorklistItem> worklist = workfacade.GeWorklistItemsByProcessAction(UserId, "Approval");
                 //worklist.AddRange(workfacade.GeWorklistItemsByProcessAction(UserId, "ITSApproval"));
                 if (worklist.Where(P => P.SN == SN).Count() > 0)

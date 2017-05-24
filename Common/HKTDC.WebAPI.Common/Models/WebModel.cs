@@ -14,6 +14,13 @@ namespace HKTDC.WebAPI.Common.Models
         public HttpStatusCode Code { get; set; }
         public string Message { get; set; }
     }
+    public class ProcessMenu
+    {
+        public int ProcessID { get; set; }
+        public string ProcessName { get; set; }
+        public string ProcessDisplayName { get; set; }
+        public string IsDefault { get; set; }
+    }
     public class Menus
     {
         public string UserName { get; set; }

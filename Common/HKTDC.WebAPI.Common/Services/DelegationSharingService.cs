@@ -301,7 +301,7 @@ namespace HKTDC.WebAPI.Common.Services
             return Tuple.Create(success, msg);
         }
 
-        public List<UserDTO> GetShareUserList(string UserId, string process)
+        public List<UserDTO> GetShareUserList(string UserId, string process, string type)
         {
             try
             {
@@ -309,22 +309,26 @@ namespace HKTDC.WebAPI.Common.Services
                 int ProcessId = Db.ProcessList.Where(p => p.ProcessName == process).Select(p => p.ProcessID).FirstOrDefault();
                 if(ProcessId != 0)
                 {
-                    DateTime currentTime = DateTime.Now;
-                    //list = Db.DelegationList.Where(p => p.ProcessID == ProcessId && p.ToWorkerID == UserId && p.DelegationType == "Sharing" && p.Enabled == "1" && p.StartDate <= currentTime && p.EndDate >= currentTime).DistinctBy(p => p.FromUser_UserID).Select(p => new UserDTO
-                    //{
-                    //    UserID = p.FromUser_UserID,
-                    //    EmployeeID = p.FromUser_EmployeeID,
-                    //    FullName = p.FromUser_FullName
-                    //}).ToList();
-                    list = (from a in Db.SharingList
-                            join b in Db.ProcessActivityGroup on a.ActivityGroupID equals b.GroupID
-                            where b.ProcessID == ProcessId && a.ToWorkerID == UserId && a.DelegationType == "Sharing" && a.Enabled == "1" && a.StartDate <= currentTime && a.EndDate >= currentTime
-                            select new UserDTO
-                            {
-                                UserID = a.FromWorkerID,
-                                EmployeeID = a.FromWorkerEmployeeID,
-                                FullName = a.FromWorkerFullName
-                            }).DistinctBy(a => a.UserID).ToList();
+                    SqlParameter[] sqlp = {
+                        new SqlParameter("process", process),
+                        new SqlParameter("userId", UserId),
+                        new SqlParameter("type", DBNull.Value)
+                    };
+                    if(!string.IsNullOrEmpty(type))
+                    {
+                        sqlp[2].Value = type;
+                    }
+                    list = Db.Database.SqlQuery<UserDTO>("exec [K2_GetShareUser] @process,@userId,@type", sqlp).ToList();
+                    //DateTime currentTime = DateTime.Now;
+                    //list = (from a in Db.SharingList
+                    //        join b in Db.ProcessActivityGroup on a.ActivityGroupID equals b.GroupID
+                    //        where b.ProcessID == ProcessId && a.ToWorkerID == UserId && a.DelegationType == "Sharing" && a.Enabled == "1" && a.StartDate <= currentTime && a.EndDate >= currentTime
+                    //        select new UserDTO
+                    //        {
+                    //            UserID = a.FromWorkerID,
+                    //            EmployeeID = a.FromWorkerEmployeeID,
+                    //            FullName = a.FromWorkerFullName
+                    //        }).DistinctBy(a => a.UserID).ToList();
                 }
                 return list;
             }

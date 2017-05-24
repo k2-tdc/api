@@ -60,7 +60,7 @@ namespace HKTDC.WebAPI.Common.Controllers
                 //        return new HttpResponseMessage { Content = new StringContent("{\"Success\":\"0\", \"Msg\":\"" + response.Item2 + "\"}", System.Text.Encoding.UTF8, "application/json") };
                 //    }
                 //}
-                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/role-permission/{PermissionID}", "HttpDelete", getCurrentUser(Request), null))
+                if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/role-permissions/{PermissionID}", "HttpDelete", getCurrentUser(Request), null))
                 {
                     if (!string.IsNullOrEmpty(PermissionID))
                     {

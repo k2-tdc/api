@@ -320,10 +320,16 @@ namespace HKTDC.WebAPI.Common.Services
                 //if(checkHavePermission(UserId, "ADMIN", "User Role"))
                 //{
                     SqlParameter[] sqlp = {
-                                    new SqlParameter("SPAUserRoleMemberGroupGUID", UserRoleMemberGUID)
-                                };
-                    Db.Database.ExecuteSqlCommand("exec [K2_DeleteUserRoleMember] @SPAUserRoleMemberGroupGUID", sqlp);
-                    success = true;
+                        new SqlParameter("SPAUserRoleMemberGroupGUID", UserRoleMemberGUID)
+                    };
+                    int result = Db.Database.SqlQuery<int>("exec [K2_DeleteUserRoleMember] @SPAUserRoleMemberGroupGUID", sqlp).FirstOrDefault();
+                    if (result == 1)
+                    {
+                        success = true;
+                    } else
+                    {
+                        msg = "Invalid User Role Member";
+                    }
                 //} else
                 //{
                 //    success = false;

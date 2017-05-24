@@ -540,5 +540,30 @@ namespace HKTDC.WebAPI.Common.Controllers
                 throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
             }
         }
+
+        //[HttpGet]
+        //public List<ProcessMenu> GetProcessList(String UserId)
+        //{
+        //    try
+        //    {
+        //        if (HKTDC.Utils.AuthorizationUtil.CheckApiAuthorized("workflow/users/{uid}/work-list", "HttpGet", getCurrentUser(Request), null))
+        //        {
+
+        //            return this.commonService.GetApplicationProcessList(UserId);
+        //        }
+        //        else
+        //        {
+        //            throw new UnauthorizedAccessException();
+        //        }
+        //    }
+
+        //    catch (Exception ex)
+        //    {
+        //        var err = this.commonService.ErrorLog(ex, getCurrentUser(Request));
+        //        throw new HttpResponseException(Request.CreateErrorResponse(err.Code, err.Message));
+
+        //    }
+
+        //}
     }
 }
